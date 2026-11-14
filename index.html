@@ -427,6 +427,39 @@ button:hover { opacity: 0.82; }
   flex-shrink: 0;
 }
 
+/* 밴드 입력 도우미 */
+.help {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.suggest:empty {
+  display: none;
+}
+
+.suggest-chip {
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid var(--green-dark);
+  border-radius: 20px;
+  color: var(--green);
+  font-size: 12px;
+}
+
+/* 여러 팀 공연의 라인업 */
+.gig-lineup {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .empty {
   padding: 25px 8px;
   color: var(--muted);
@@ -634,8 +667,9 @@ dialog p {
 
     <div class="field">
       <label for="artist">밴드</label>
-      <input id="artist" list="artistOptions" placeholder="밴드명" maxlength="100" required>
-      <datalist id="artistOptions"></datalist>
+      <input id="artist" placeholder="밴드명" maxlength="300" autocomplete="off" aria-describedby="artistHelp" required>
+      <div id="artistSuggest" class="suggest" aria-label="밴드 추천"></div>
+      <small id="artistHelp" class="help">여러 팀이 나오는 공연은 쉼표(,)로 구분해 주세요.</small>
     </div>
 
     <div class="field">
@@ -790,7 +824,7 @@ const els = {
   submitBtn: $("submitBtn"),
   cancelBtn: $("cancelBtn"),
   list: $("gigList"),
-  artistList: $("artistOptions"),
+  artistSuggest: $("artistSuggest"),
   venueList: $("venueOptions"),
   monthly: $("monthlyStats"),
   artists: $("artistStats"),
@@ -876,6 +910,34 @@ function formatPrice(value) {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+/* 밴드 입력값을 이름 목록으로 (쉼표 구분, 공백/중복 정리) */
+function parseArtists(value) {
+  const list = Array.isArray(value)
+    ? value
+    : String(value ?? "").split(/[,，、\n]/);
+
+  const seen = new Set();
+  const result = [];
+
+  list.forEach(item => {
+    const name = String(item ?? "").trim().replace(/\s+/g, " ");
+    const key = name.toLowerCase();
+
+    if (!name || seen.has(key)) return;
+
+    seen.add(key);
+    result.push(name);
+  });
+
+  return result;
+}
+
+/* 목록 표시용: 여러 팀이면 "A 외 N팀" */
+function artistShort(artists) {
+  if (artists.length > 1) return `${artists[0]} 외 ${artists.length - 1}팀`;
+  return artists[0] || "";
+}
+
 /* ---------- 알림 ---------- */
 
 let toastTimer = null;
@@ -930,10 +992,13 @@ function askConfirm(message, yesLabel = "확인") {
 function normalizeGig(raw) {
   if (!raw || typeof raw !== "object") return null;
 
-  const artist = String(raw.artist ?? "").trim();
+  /* 예전 기록은 artist 문자열만 있으므로, 쉼표가 있으면 여러 팀으로 나눔 */
+  const artists = parseArtists(
+    Array.isArray(raw.artists) && raw.artists.length ? raw.artists : raw.artist
+  );
   const date = String(raw.date ?? "").trim();
 
-  if (!artist || !isValidDate(date)) return null;
+  if (artists.length === 0 || !isValidDate(date)) return null;
 
   const price = Number(raw.price);
 
@@ -941,7 +1006,8 @@ function normalizeGig(raw) {
     id: raw.id !== undefined && raw.id !== null && String(raw.id) !== ""
       ? String(raw.id)
       : generateId(),
-    artist,
+    artist: artists.join(", "),
+    artists,
     date,
     name: String(raw.name ?? "").trim(),
     venue: String(raw.venue ?? "").trim(),
@@ -1027,6 +1093,7 @@ function clearForm() {
   els.submitBtn.textContent = "공연 추가하기";
   els.cancelBtn.hidden = true;
   takeSnapshot();
+  renderArtistSuggest();
 }
 
 function resetForm() {
@@ -1048,7 +1115,7 @@ async function editGig(id) {
 
   editingId = id;
 
-  els.artist.value = gig.artist;
+  els.artist.value = gig.artists.join(", ");
   els.date.value = gig.date;
   els.gigName.value = gig.name;
   els.venue.value = gig.venue;
@@ -1061,6 +1128,7 @@ async function editGig(id) {
 
   takeSnapshot();
   renderList();
+  renderArtistSuggest();
 
   els.formTitle.scrollIntoView({ behavior: "smooth" });
   els.artist.focus({ preventScroll: true });
@@ -1071,7 +1139,7 @@ async function deleteGig(id) {
   if (!gig) return;
 
   const ok = await askConfirm(
-    `"${gig.artist}" 공연 기록을 삭제할까요?`,
+    `"${artistShort(gig.artists)}" 공연 기록을 삭제할까요?`,
     "삭제"
   );
   if (!ok) return;
@@ -1095,8 +1163,9 @@ els.form.addEventListener("submit", function(e) {
 
   const v = getFormValues();
   const price = Number(v.priceValue);
+  const artists = parseArtists(v.artist);
 
-  if (!v.artist || !v.name || !v.venue) {
+  if (artists.length === 0 || !v.name || !v.venue) {
     showToast("밴드, 공연명, 장소를 모두 입력해 주세요.", true);
     return;
   }
@@ -1129,7 +1198,8 @@ els.form.addEventListener("submit", function(e) {
     }
 
     gig.name = v.name;
-    gig.artist = v.artist;
+    gig.artist = artists.join(", ");
+    gig.artists = artists;
     gig.date = v.date;
     gig.venue = v.venue;
     gig.price = price;
@@ -1138,7 +1208,8 @@ els.form.addEventListener("submit", function(e) {
     gigs.push({
       id: generateId(),
       name: v.name,
-      artist: v.artist,
+      artist: artists.join(", "),
+      artists,
       date: v.date,
       venue: v.venue,
       price,
@@ -1158,6 +1229,27 @@ els.form.addEventListener("submit", function(e) {
 });
 
 els.cancelBtn.addEventListener("click", cancelEdit);
+
+/* 밴드 입력: 입력할 때마다 추천 칩 갱신 */
+els.artist.addEventListener("input", renderArtistSuggest);
+
+/* 추천 칩을 누르면 지금 입력 중인 이름 자리에 넣고, 이어서 다음 팀을 쓸 수 있게 쉼표 추가 */
+els.artistSuggest.addEventListener("click", function(e) {
+  const btn = e.target.closest("button[data-name]");
+  if (!btn) return;
+
+  const value = els.artist.value;
+  const lastComma = Math.max(
+    value.lastIndexOf(","),
+    value.lastIndexOf("，"),
+    value.lastIndexOf("、")
+  );
+  const head = value.slice(0, lastComma + 1).trim();
+
+  els.artist.value = (head ? head + " " : "") + btn.dataset.name + ", ";
+  els.artist.focus();
+  renderArtistSuggest();
+});
 
 /* 가격 입력: 숫자만 받고 천 단위 콤마 표시 (커서 위치 유지) */
 els.price.addEventListener("input", function() {
@@ -1200,7 +1292,7 @@ function setStatus(id, status) {
 
   render();
   focusGigButton(id);
-  showToast(`${gig.artist} 상태를 '${status}'(으)로 바꿨어요.`);
+  showToast(`${artistShort(gig.artists)} 상태를 '${status}'(으)로 바꿨어요.`);
 }
 
 function advanceStatus(id) {
@@ -1219,6 +1311,50 @@ function focusGigButton(id) {
     els.list.querySelector(`[data-action="edit"][data-id="${safeId}"]`);
 
   if (target) target.focus();
+}
+
+/* 직접 쓰기 전에 쉽게 고를 수 있도록 지금까지 본 밴드를 많이 본 순으로 */
+function knownArtists() {
+  const map = new Map();
+
+  gigs.forEach(gig => {
+    gig.artists.forEach(name => {
+      const key = name.toLowerCase();
+      const entry = map.get(key) || { name, count: 0 };
+      entry.count += 1;
+      map.set(key, entry);
+    });
+  });
+
+  return [...map.values()]
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "ko"))
+    .map(entry => entry.name);
+}
+
+/* 밴드 추천 칩 */
+function renderArtistSuggest() {
+  const value = els.artist.value;
+  const lastComma = Math.max(
+    value.lastIndexOf(","),
+    value.lastIndexOf("，"),
+    value.lastIndexOf("、")
+  );
+
+  const token = value.slice(lastComma + 1).trim().toLowerCase();
+  const already = new Set(
+    parseArtists(value.slice(0, lastComma + 1)).map(name => name.toLowerCase())
+  );
+
+  const matches = knownArtists()
+    .filter(name => {
+      const key = name.toLowerCase();
+      return !already.has(key) && key !== token && key.includes(token);
+    })
+    .slice(0, 6);
+
+  els.artistSuggest.innerHTML = matches
+    .map(name => `<button type="button" class="suggest-chip" data-name="${escapeHTML(name)}">${escapeHTML(name)}</button>`)
+    .join("");
 }
 
 /* 목록의 버튼들: 이벤트 위임 */
@@ -1246,8 +1382,12 @@ function renderList() {
   els.list.innerHTML = [...gigs]
     .sort((a, b) => b.date.localeCompare(a.date))
     .map(gig => {
-      const artist = escapeHTML(gig.artist);
-      const label = `${artist} ${escapeHTML(gig.date)}`;
+      const artist = escapeHTML(artistShort(gig.artists));
+      const lineupFull = escapeHTML(gig.artists.join(", "));
+      const label = `${lineupFull} ${escapeHTML(gig.date)}`;
+      const lineup = gig.artists.length > 1
+        ? `<div class="gig-lineup">${lineupFull}</div>`
+        : "";
       const isEditing = gig.id === editingId;
       const safeId = escapeHTML(gig.id);
       const statusText = escapeHTML(gig.status);
@@ -1281,7 +1421,7 @@ function renderList() {
       return `
         <div class="gig-card${isEditing ? " editing" : ""}">
           <div class="gig-top">
-            <div class="gig-artist">${artist}</div>
+            <div class="gig-artist" title="${lineupFull}">${artist}</div>
 
             <div class="gig-top-right">
               ${dday}
@@ -1297,6 +1437,8 @@ function renderList() {
               </div>
             </div>
           </div>
+
+          ${lineup}
 
           <div class="gig-bottom">
             <div class="gig-info">
@@ -1366,8 +1508,11 @@ function renderMonthly() {
 function renderArtists() {
   const artists = {};
 
+  /* 여러 팀이 나온 공연은 라인업의 팀마다 1회씩 집계 */
   gigs.forEach(gig => {
-    artists[gig.artist] = (artists[gig.artist] || 0) + 1;
+    gig.artists.forEach(name => {
+      artists[name] = (artists[name] || 0) + 1;
+    });
   });
 
   const entries = Object.entries(artists)
@@ -1390,15 +1535,14 @@ function renderStats() {
   renderArtists();
 }
 
-/* 밴드/장소 자동완성 후보: 이미 입력한 값을 중복 없이 */
+/* 장소 자동완성 후보(중복 없이) + 밴드 추천 칩 갱신 */
 function renderSuggestions() {
-  const options = key => [...new Set(gigs.map(g => g[key]).filter(Boolean))]
+  els.venueList.innerHTML = [...new Set(gigs.map(g => g.venue).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, "ko"))
     .map(value => `<option value="${escapeHTML(value)}"></option>`)
     .join("");
 
-  els.artistList.innerHTML = options("artist");
-  els.venueList.innerHTML = options("venue");
+  renderArtistSuggest();
 }
 
 function render() {
