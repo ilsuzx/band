@@ -1543,7 +1543,7 @@ function renderMonthly() {
 }
 
 /* 밴드별 관람 횟수: 상위 N팀만 보이고 나머지는 접어 둠 */
-const ARTISTS_SHOWN = 5;
+const ARTISTS_SHOWN = 3;
 let artistsExpanded = false;
 
 function renderArtists() {
@@ -1556,36 +1556,41 @@ function renderArtists() {
     });
   });
 
-  const entries = Object.entries(artists)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"));
+  /* 관람 횟수가 같은 팀은 한 줄로 묶음 (많이 본 순, 이름은 가나다순) */
+  const byCount = new Map();
 
-  /* 관람 횟수가 같으면 같은 순위 (예: 1위, 1위, 3위) */
-  const ranks = entries.map(([, count], index) =>
-    index > 0 && entries[index - 1][1] === count
-      ? null
-      : index + 1
-  );
-  for (let i = 1; i < ranks.length; i++) {
-    if (ranks[i] === null) ranks[i] = ranks[i - 1];
-  }
+  Object.entries(artists).forEach(([name, count]) => {
+    if (!byCount.has(count)) byCount.set(count, []);
+    byCount.get(count).push(name);
+  });
 
-  /* 5번째와 횟수가 같은 팀은 순위가 같으므로 함께 보여 줌 */
-  let shown = Math.min(ARTISTS_SHOWN, entries.length);
-  while (shown < entries.length && entries[shown][1] === entries[shown - 1][1]) {
-    shown++;
-  }
+  /* 순위 = 나보다 많이 본 팀 수 + 1 (예: 1위 1팀, 2위 2팀이면 다음은 4위) */
+  let above = 0;
+  const groups = [...byCount.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([count, names]) => {
+      const group = {
+        rank: above + 1,
+        count,
+        names: names.sort((a, b) => a.localeCompare(b, "ko"))
+      };
+      above += names.length;
+      return group;
+    });
 
-  const extra = entries.length - shown;
+  /* 3위까지만 보이고 나머지는 접음 */
+  const hiddenGroups = groups.filter(g => g.rank > ARTISTS_SHOWN);
+  const extra = hiddenGroups.reduce((sum, g) => sum + g.names.length, 0);
 
-  /* 팀이 줄어서 접을 게 없어지면 펼침 상태 초기화 */
+  /* 접을 게 없어지면 펼침 상태 초기화 */
   if (extra === 0) artistsExpanded = false;
 
-  els.artists.innerHTML = entries.length
-    ? entries.map(([artist, count], index) => `
-        <tr${index >= shown && !artistsExpanded ? " hidden" : ""}>
-          <td>${ranks[index]}위</td>
-          <td style="text-align:left;">${escapeHTML(artist)}</td>
-          <td><strong>${count}회</strong></td>
+  els.artists.innerHTML = groups.length
+    ? groups.map(g => `
+        <tr${g.rank > ARTISTS_SHOWN && !artistsExpanded ? " hidden" : ""}>
+          <td>${g.rank}위</td>
+          <td style="text-align:left;">${g.names.map(escapeHTML).join(", ")}</td>
+          <td><strong>${g.count}회</strong></td>
         </tr>
       `).join("")
     : '<tr><td colspan="3" class="empty">아직 공연 기록이 없습니다.</td></tr>';
