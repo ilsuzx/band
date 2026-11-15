@@ -705,6 +705,31 @@ button:hover { opacity: 0.82; }
   color: var(--on-accent);
 }
 
+.notice-btn {
+  position: relative;
+  flex: none;
+  width: 44px;
+  padding: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* 안 읽은 공지가 있을 때 📢 위에 뜨는 점 (테마 포인트 색) */
+.notice-btn.has-new::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 2.5px var(--bg);
+}
+
 .view[hidden] {
   display: none;
 }
@@ -1082,6 +1107,56 @@ dialog p {
   gap: 8px;
 }
 
+.tip-heading {
+  margin: 0 0 6px !important;
+  font-size: 13px !important;
+  font-weight: bold;
+}
+
+.tip-list {
+  margin: 0 0 18px;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tip-list li { margin-bottom: 4px; }
+
+#tipDialog .tip-text {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.tip-list li.tip-sub {
+  color: var(--muted);
+  font-size: 12px;
+  list-style: none;
+  margin-left: -16px;
+}
+
+#tipDialog {
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+}
+
+/* 단어 중간에서 끊기지 않고 띄어쓰기 단위로 줄바꿈 */
+#tipDialog,
+#tipDialog p,
+#tipDialog li {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+#tipDialog .tip-list { padding-left: 16px; }
+
+.tip-steps {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
 dialog .dialog-note {
   margin-bottom: 10px;
   color: var(--muted);
@@ -1188,6 +1263,7 @@ dialog .dialog-note {
 <nav class="view-tabs" aria-label="화면 전환">
   <button type="button" class="view-tab" id="tabList" data-view="list" aria-pressed="true">기록</button>
   <button type="button" class="view-tab" id="tabCal" data-view="cal" aria-pressed="false">캘린더</button>
+  <button type="button" class="notice-btn" id="noticeBtn" aria-label="공지사항 보기" title="공지사항">📢</button>
 </nav>
 
 <div id="viewList" class="view">
@@ -1357,6 +1433,33 @@ dialog .dialog-note {
   <div class="dialog-buttons">
     <button type="button" class="cancel-btn" id="confirmNo">취소</button>
     <button type="button" class="danger-btn" id="confirmYes">확인</button>
+  </div>
+</dialog>
+
+<dialog id="tipDialog" aria-labelledby="tipTitle">
+  <p id="tipTitle"><strong>공지사항 (26.11.18)</strong></p>
+
+  <p class="tip-heading">저장 안내</p>
+  <p class="tip-text">
+    입력한 기록은 서버가 아닌 <b>개인 브라우저</b>에 저장됩니다.
+    브라우저 쿠키·사이트 데이터를 삭제하면 기록이 지워질 수 있습니다.
+    <b>시크릿 모드</b>에서는 기록이 저장되지 않으니, 반드시 해제 후 이용해 주세요.
+  </p>
+
+  <p class="tip-heading">링크로만 이용하는 경우</p>
+  <ul class="tip-list">
+    <li>홈 화면에 추가하지 않고 링크로만 이용하실 경우, <b>Google 혹은 Naver</b> 앱 이용을 권장합니다.</li>
+    <li class="tip-sub">Safari에는 사용자가 특정 웹사이트와 7일 동안 상호작용하지 않으면 해당 사이트의 쿠키와 데이터를 자동으로 삭제하는 정책이 있습니다.</li>
+  </ul>
+
+  <p class="tip-heading">웹앱으로 이용하는 방법</p>
+  <ul class="tip-list">
+    <li><b>Safari</b>: 공유 → 홈 화면에 추가</li>
+    <li><b>삼성 인터넷</b>: 메뉴 → 현재 페이지 추가 → 홈 화면</li>
+  </ul>
+
+  <div class="dialog-buttons">
+    <button type="button" id="tipClose">닫기</button>
   </div>
 </dialog>
 
@@ -2795,6 +2898,56 @@ takeSnapshot();
 calGoToToday();
 render();
 renderThemes();
+
+/* 처음 들어왔을 때 '홈 화면에 추가' 안내 자동 표시 (홈 화면 앱이거나 '다시 보지 않기'면 자동 표시 안 함, 📢 버튼으로는 항상 열림) */
+(function setupInstallTip() {
+  /* 새 공지를 올릴 때는 이 번호만 올리면 됨 (예: 6 → 7). 읽지 않은 사람에게 점이 뜸 */
+  const NOTICE_VERSION = "6";
+  const SEEN_KEY = "gigNoticeSeen";
+
+  const dialog = $("tipDialog");
+  const noticeBtn = $("noticeBtn");
+
+  function hasUnread() {
+    try { return localStorage.getItem(SEEN_KEY) !== NOTICE_VERSION; }
+    catch (error) { return false; }
+  }
+
+  function updateBadge() {
+    const unread = hasUnread();
+    noticeBtn.classList.toggle("has-new", unread);
+    noticeBtn.setAttribute("aria-label", unread ? "공지사항 보기 (새 공지 있음)" : "공지사항 보기");
+  }
+
+  function markSeen() {
+    try { localStorage.setItem(SEEN_KEY, NOTICE_VERSION); } catch (error) {}
+    updateBadge();
+  }
+
+  function openTip() {
+    if (dialog.open) return;
+    markSeen();
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+  }
+
+  function closeTip() {
+    if (typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+  }
+
+  /* 📢 버튼으로 언제든 다시 열 수 있음 */
+  noticeBtn.addEventListener("click", openTip);
+  $("tipClose").addEventListener("click", closeTip);
+
+  /* 공지를 한 번도 읽은 적 없는 사람(처음 접속)에게는 무조건 첫 화면에 띄움 */
+  let firstVisit = true;
+
+  try { firstVisit = localStorage.getItem(SEEN_KEY) === null; } catch (error) {}
+
+  updateBadge();
+  if (firstVisit) openTip();
+})();
 
 /* 탭으로 돌아왔을 때 D-day와 힌트, 오늘 표시를 최신 날짜로 갱신 */
 document.addEventListener("visibilitychange", () => {
