@@ -953,6 +953,11 @@ function parseArtists(value) {
   return result;
 }
 
+/* 목록 카드의 제목: 공연명 (비어 있으면 밴드 이름) */
+function gigTitle(gig) {
+  return gig.name || artistShort(gig.artists);
+}
+
 /* 목록 표시용: 여러 팀이면 "A 외 N팀" */
 function artistShort(artists) {
   if (artists.length > 1) return `${artists[0]} 외 ${artists.length - 1}팀`;
@@ -1160,7 +1165,7 @@ async function deleteGig(id) {
   if (!gig) return;
 
   const ok = await askConfirm(
-    `"${artistShort(gig.artists)}" 공연 기록을 삭제할까요?`,
+    `"${gigTitle(gig)}" 공연 기록을 삭제할까요?`,
     "삭제"
   );
   if (!ok) return;
@@ -1322,7 +1327,7 @@ function setStatus(id, status) {
 
   render();
   focusGigButton(id);
-  showToast(`${artistShort(gig.artists)} 상태를 '${status}'(으)로 바꿨어요.`);
+  showToast(`${gigTitle(gig)} 상태를 '${status}'(으)로 바꿨어요.`);
 }
 
 function advanceStatus(id) {
@@ -1422,9 +1427,10 @@ function renderList() {
   els.list.innerHTML = [...gigs]
     .sort((a, b) => b.date.localeCompare(a.date))
     .map(gig => {
+      const title = escapeHTML(gigTitle(gig));
       const artist = escapeHTML(artistShort(gig.artists));
       const lineupFull = escapeHTML(gig.artists.join(", "));
-      const label = `${lineupFull} ${escapeHTML(gig.date)}`;
+      const label = `${title} ${escapeHTML(gig.date)}`;
       const lineup = gig.artists.length > 1
         ? `<div class="gig-lineup">${lineupFull}</div>`
         : "";
@@ -1461,7 +1467,7 @@ function renderList() {
       return `
         <div class="gig-card${isEditing ? " editing" : ""}">
           <div class="gig-top">
-            <div class="gig-artist" title="${lineupFull}">${artist}</div>
+            <div class="gig-artist" title="${title}">${title}</div>
 
             <div class="gig-top-right">
               ${dday}
@@ -1485,7 +1491,7 @@ function renderList() {
               <span class="gig-date"
                 title="${escapeHTML(weekdayText(gig.date))}">${formatDateWithWeekday(gig.date)}</span>
               <span class="gig-separator" aria-hidden="true">·</span>
-              <span>${escapeHTML(gig.name || "공연명 미기록")}</span>
+              <span title="${lineupFull}">${artist}</span>
               <span class="gig-separator" aria-hidden="true">·</span>
               <span>${escapeHTML(gig.venue || "장소 미기록")}</span>
             </div>
