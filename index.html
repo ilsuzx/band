@@ -460,6 +460,23 @@ button:hover { opacity: 0.82; }
   overflow-wrap: anywhere;
 }
 
+/* 밴드 순위 더보기/접기 */
+.more-btn {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--green);
+  font-size: 12px;
+}
+
+.more-btn[hidden] {
+  display: none;
+}
+
 .empty {
   padding: 25px 8px;
   color: var(--muted);
@@ -755,6 +772,7 @@ dialog p {
   </thead>
   <tbody id="artistStats"></tbody>
 </table>
+<button type="button" class="more-btn" id="artistToggle" aria-expanded="false" aria-controls="artistStats" hidden></button>
 </div>
 
 <div class="section-title">전체 통계</div>
@@ -828,6 +846,7 @@ const els = {
   venueList: $("venueOptions"),
   monthly: $("monthlyStats"),
   artists: $("artistStats"),
+  artistToggle: $("artistToggle"),
   totalGigs: $("totalGigs"),
   totalSpent: $("totalSpent"),
   importFile: $("importFile"),
@@ -1233,20 +1252,29 @@ els.cancelBtn.addEventListener("click", cancelEdit);
 /* 밴드 입력: 입력할 때마다 추천 칩 갱신 */
 els.artist.addEventListener("input", renderArtistSuggest);
 
-/* 추천 칩을 누르면 지금 입력 중인 이름 자리에 넣고, 이어서 다음 팀을 쓸 수 있게 쉼표 추가 */
+/* 추천 칩 클릭
+   - replace: 입력 중이던 글자를 고른 이름으로 바꿈 (쉼표 없이 이름만)
+   - append: 이미 완성된 이름 뒤에 ", 이름"을 이어 붙임 (이때 쉼표가 들어감) */
 els.artistSuggest.addEventListener("click", function(e) {
   const btn = e.target.closest("button[data-name]");
   if (!btn) return;
 
   const value = els.artist.value;
-  const lastComma = Math.max(
-    value.lastIndexOf(","),
-    value.lastIndexOf("，"),
-    value.lastIndexOf("、")
-  );
-  const head = value.slice(0, lastComma + 1).trim();
+  const name = btn.dataset.name;
 
-  els.artist.value = (head ? head + " " : "") + btn.dataset.name + ", ";
+  if (btn.dataset.mode === "append") {
+    els.artist.value = value.trim().replace(/[,，、]\s*$/, "") + ", " + name;
+  } else {
+    const lastComma = Math.max(
+      value.lastIndexOf(","),
+      value.lastIndexOf("，"),
+      value.lastIndexOf("、")
+    );
+    const head = value.slice(0, lastComma + 1).trim();
+
+    els.artist.value = (head ? head + " " : "") + name;
+  }
+
   els.artist.focus();
   renderArtistSuggest();
 });
@@ -1331,7 +1359,9 @@ function knownArtists() {
     .map(entry => entry.name);
 }
 
-/* 밴드 추천 칩 */
+/* 밴드 추천 칩: 자주 본 순서로 최대 이 개수만 */
+const SUGGEST_LIMIT = 5;
+
 function renderArtistSuggest() {
   const value = els.artist.value;
   const lastComma = Math.max(
@@ -1345,15 +1375,23 @@ function renderArtistSuggest() {
     parseArtists(value.slice(0, lastComma + 1)).map(name => name.toLowerCase())
   );
 
-  const matches = knownArtists()
+  const known = knownArtists();
+
+  /* 마지막 입력이 이미 알고 있는 밴드 이름과 똑같으면(칩으로 고른 직후 등)
+     그 밴드는 그대로 두고, 나머지 밴드를 "추가" 후보로 보여 줌 */
+  const complete = token !== "" && known.some(name => name.toLowerCase() === token);
+  const mode = complete ? "append" : "replace";
+
+  const matches = known
     .filter(name => {
       const key = name.toLowerCase();
-      return !already.has(key) && key !== token && key.includes(token);
+      if (already.has(key) || key === token) return false;
+      return complete ? true : key.includes(token);
     })
-    .slice(0, 6);
+    .slice(0, SUGGEST_LIMIT);
 
   els.artistSuggest.innerHTML = matches
-    .map(name => `<button type="button" class="suggest-chip" data-name="${escapeHTML(name)}">${escapeHTML(name)}</button>`)
+    .map(name => `<button type="button" class="suggest-chip" data-mode="${mode}" data-name="${escapeHTML(name)}">${escapeHTML(name)}</button>`)
     .join("");
 }
 
@@ -1504,7 +1542,10 @@ function renderMonthly() {
     : '<tr><td colspan="4" class="empty">아직 통계가 없습니다.</td></tr>';
 }
 
-/* 밴드별 관람 횟수 */
+/* 밴드별 관람 횟수: 상위 N팀만 보이고 나머지는 접어 둠 */
+const ARTISTS_SHOWN = 5;
+let artistsExpanded = false;
+
 function renderArtists() {
   const artists = {};
 
@@ -1518,16 +1559,48 @@ function renderArtists() {
   const entries = Object.entries(artists)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko"));
 
+  /* 관람 횟수가 같으면 같은 순위 (예: 1위, 1위, 3위) */
+  const ranks = entries.map(([, count], index) =>
+    index > 0 && entries[index - 1][1] === count
+      ? null
+      : index + 1
+  );
+  for (let i = 1; i < ranks.length; i++) {
+    if (ranks[i] === null) ranks[i] = ranks[i - 1];
+  }
+
+  /* 5번째와 횟수가 같은 팀은 순위가 같으므로 함께 보여 줌 */
+  let shown = Math.min(ARTISTS_SHOWN, entries.length);
+  while (shown < entries.length && entries[shown][1] === entries[shown - 1][1]) {
+    shown++;
+  }
+
+  const extra = entries.length - shown;
+
+  /* 팀이 줄어서 접을 게 없어지면 펼침 상태 초기화 */
+  if (extra === 0) artistsExpanded = false;
+
   els.artists.innerHTML = entries.length
     ? entries.map(([artist, count], index) => `
-        <tr>
-          <td>${index + 1}위</td>
+        <tr${index >= shown && !artistsExpanded ? " hidden" : ""}>
+          <td>${ranks[index]}위</td>
           <td style="text-align:left;">${escapeHTML(artist)}</td>
           <td><strong>${count}회</strong></td>
         </tr>
       `).join("")
     : '<tr><td colspan="3" class="empty">아직 공연 기록이 없습니다.</td></tr>';
+
+  els.artistToggle.hidden = extra === 0;
+  els.artistToggle.setAttribute("aria-expanded", String(artistsExpanded));
+  els.artistToggle.textContent = artistsExpanded
+    ? "접기 ▲"
+    : `나머지 ${extra}팀 보기 ▼`;
 }
+
+els.artistToggle.addEventListener("click", function() {
+  artistsExpanded = !artistsExpanded;
+  renderArtists();
+});
 
 function renderStats() {
   renderTotals();
