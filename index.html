@@ -650,6 +650,24 @@ button:hover { opacity: 0.82; }
   overflow-wrap: anywhere;
 }
 
+/* 같은 순위 밴드 이름 줄 */
+.rank-names {
+  text-align: left;
+  word-break: keep-all;
+  line-height: 1.6;
+}
+
+.rank-more {
+  display: inline;
+  padding: 2px 8px;
+  background: transparent;
+  border: 1px solid var(--green-dark);
+  border-radius: 12px;
+  color: var(--green);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 /* 화면 전환 탭 (기록 / 캘린더) */
 .view-tabs {
   position: sticky;
@@ -2080,7 +2098,24 @@ els.monthlyToggle.addEventListener("click", function() {
 
 /* 밴드별 관람 횟수: 상위 N팀만 보이고 나머지는 접어 둠 */
 const ARTISTS_SHOWN = 3;
+const NAMES_PER_RANK = 4; /* 한 순위에 이름이 많으면 이 수만큼만 보여주고 '외 N팀' */
 let artistsExpanded = false;
+const expandedRanks = new Set();
+
+/* 같은 순위 팀이 많으면 앞의 몇 팀만 보이고 '외 N팀'을 눌러 펼침 */
+function rankNamesHTML(group) {
+  const names = group.names;
+
+  if (names.length <= NAMES_PER_RANK) return names.map(escapeHTML).join(", ");
+
+  if (expandedRanks.has(group.count)) {
+    return names.map(escapeHTML).join(", ") +
+      ` <button type="button" class="rank-more" data-rank-count="${group.count}">접기</button>`;
+  }
+
+  return names.slice(0, NAMES_PER_RANK).map(escapeHTML).join(", ") +
+    ` <button type="button" class="rank-more" data-rank-count="${group.count}">외 ${names.length - NAMES_PER_RANK}팀 ▼</button>`;
+}
 
 function renderArtists() {
   const artists = {};
@@ -2120,7 +2155,7 @@ function renderArtists() {
     ? groups.map(g => `
         <tr${g.rank > ARTISTS_SHOWN && !artistsExpanded ? " hidden" : ""}>
           <td>${g.rank}위</td>
-          <td style="text-align:left;">${g.names.map(escapeHTML).join(", ")}</td>
+          <td class="rank-names">${rankNamesHTML(g)}</td>
           <td><strong>${g.count}회</strong></td>
         </tr>
       `).join("")
@@ -2132,6 +2167,18 @@ function renderArtists() {
     ? "접기 ▲"
     : `나머지 ${extra}팀 보기 ▼`;
 }
+
+els.artists.addEventListener("click", function(e) {
+  const btn = e.target.closest("button[data-rank-count]");
+  if (!btn) return;
+
+  const count = Number(btn.dataset.rankCount);
+
+  if (expandedRanks.has(count)) expandedRanks.delete(count);
+  else expandedRanks.add(count);
+
+  renderArtists();
+});
 
 els.artistToggle.addEventListener("click", function() {
   artistsExpanded = !artistsExpanded;
