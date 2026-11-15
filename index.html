@@ -657,6 +657,8 @@ button:hover { opacity: 0.82; }
   line-height: 1.6;
 }
 
+.rank-last { white-space: nowrap; }
+
 .rank-more {
   display: inline;
   padding: 2px 8px;
@@ -2098,7 +2100,7 @@ els.monthlyToggle.addEventListener("click", function() {
 
 /* 밴드별 관람 횟수: 상위 N팀만 보이고 나머지는 접어 둠 */
 const ARTISTS_SHOWN = 3;
-const NAMES_PER_RANK = 4; /* 한 순위에 이름이 많으면 이 수만큼만 보여주고 '외 N팀' */
+const NAMES_PER_RANK = 2; /* 한 순위에 이름이 많으면 이 수만큼만 보여주고 '외 N팀' */
 let artistsExpanded = false;
 const expandedRanks = new Set();
 
@@ -2113,8 +2115,12 @@ function rankNamesHTML(group) {
       ` <button type="button" class="rank-more" data-rank-count="${group.count}">접기</button>`;
   }
 
-  return names.slice(0, NAMES_PER_RANK).map(escapeHTML).join(", ") +
-    ` <button type="button" class="rank-more" data-rank-count="${group.count}">외 ${names.length - NAMES_PER_RANK}팀 ▼</button>`;
+  /* 마지막 이름과 버튼을 한 덩어리로 묶어서 버튼이 아래 줄로 떨어지지 않게 */
+  const shown = names.slice(0, NAMES_PER_RANK).map(escapeHTML);
+  const last = shown.pop();
+
+  return (shown.length ? shown.join(", ") + ", " : "") +
+    `<span class="rank-last">${last} <button type="button" class="rank-more" data-rank-count="${group.count}">외 ${names.length - NAMES_PER_RANK}팀 ▼</button></span>`;
 }
 
 function renderArtists() {
