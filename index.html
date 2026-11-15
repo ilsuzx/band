@@ -1590,19 +1590,14 @@ function renderArtists() {
     byCount.get(count).push(name);
   });
 
-  /* 순위 = 나보다 많이 본 팀 수 + 1 (예: 1위 1팀, 2위 2팀이면 다음은 4위) */
-  let above = 0;
+  /* 순위는 건너뛰지 않고 1위, 2위, 3위… 순서대로 (동률 팀이 몇 팀이든 다음은 바로 다음 순위) */
   const groups = [...byCount.entries()]
     .sort((a, b) => b[0] - a[0])
-    .map(([count, names]) => {
-      const group = {
-        rank: above + 1,
-        count,
-        names: names.sort((a, b) => a.localeCompare(b, "ko"))
-      };
-      above += names.length;
-      return group;
-    });
+    .map(([count, names], index) => ({
+      rank: index + 1,
+      count,
+      names: names.sort((a, b) => a.localeCompare(b, "ko"))
+    }));
 
   /* 3위까지만 보이고 나머지는 접음 */
   const hiddenGroups = groups.filter(g => g.rank > ARTISTS_SHOWN);
