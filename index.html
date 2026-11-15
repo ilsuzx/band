@@ -8,7 +8,13 @@
 /* 저장된 테마를 화면이 그려지기 전에 적용 (깜빡임 방지) */
 try {
   var savedTheme = localStorage.getItem("gigTheme");
-  if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+  /* 삭제된 테마는 기본 테마로, 기존 로즈 테마는 체리 크림으로 연결 */
+  if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa") savedTheme = "default";
+  if (savedTheme === "rose") savedTheme = "cherry";
+  if (savedTheme) {
+    document.documentElement.setAttribute("data-theme", savedTheme);
+    localStorage.setItem("gigTheme", savedTheme);
+  }
 } catch (e) {}
 </script>
 
@@ -48,6 +54,38 @@ try {
 }
 
 /* 테마: 기본(웜 다크)은 위 값, 나머지는 아래에서 덮어씀 */
+/* 테마: 심플 화이트 */
+:root[data-theme="white"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --panel-2: #f5f5f5;
+  --panel-light: #fafafa;
+  --green: #222222;
+  --green-dark: #666666;
+  --text: #171717;
+  --muted: #666666;
+  --line: #e5e5e5;
+  --accent: #222222;
+  --danger: #b42318;
+  --danger-line: #e2a09a;
+  --danger-strong: #b42318;
+  --on-accent: #ffffff;
+  --input-line: #d8d8d8;
+  --placeholder: #999999;
+  --sep: #bdbdbd;
+  --th-text: #333333;
+  --row-line: #eeeeee;
+  --bar-bg: #eeeeee;
+  --bar: #555555;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
 :root[data-theme="light"] {
   color-scheme: light;
   --bg: #f4f0e8;
@@ -79,94 +117,99 @@ try {
   --st-done-bg: #dcebd2;
 }
 
-:root[data-theme="blue"] {
-  --bg: #12161f;
-  --panel: #1a2030;
-  --panel-2: #222a3d;
-  --panel-light: #232b3f;
-  --green: #9db7e8;
-  --green-dark: #4b5d86;
-  --text: #e6ebf5;
-  --muted: #a4aec4;
-  --line: #33405c;
-  --accent: #aac4f2;
-  --danger: #e3a9a9;
-  --danger-line: #8c5a5a;
-  --danger-strong: #8c5a5a;
-  --on-accent: #101521;
-  --input-line: #3b4868;
-  --placeholder: #7f8aa3;
-  --sep: #5b6785;
-  --th-text: #b9c7e6;
-  --row-line: #2b354d;
-  --bar-bg: #2c3652;
-  --bar: #7f9fd8;
-  --st-before-fg: #e8c878;
-  --st-before-bg: #403a24;
-  --st-booked-fg: #9fd0e8;
-  --st-booked-bg: #1f3a4a;
-  --st-done-fg: #9ed8b0;
-  --st-done-bg: #1f3d2e;
+
+:root[data-theme="black"] {
+  color-scheme: dark;
+  --bg: #000000;
+  --panel: #101010;
+  --panel-2: #1b1b1b;
+  --panel-light: #151515;
+  --green: #f0f0f0;
+  --green-dark: #888888;
+  --text: #f5f5f5;
+  --muted: #aaaaaa;
+  --line: #303030;
+  --accent: #f0f0f0;
+  --danger: #e0a3a3;
+  --danger-line: #875b60;
+  --danger-strong: #c77d83;
+  --on-accent: #000000;
+  --input-line: #3a3a3a;
+  --placeholder: #777777;
+  --sep: #666666;
+  --th-text: #dddddd;
+  --row-line: #262626;
+  --bar-bg: #292929;
+  --bar: #d0d0d0;
+  --st-before-fg: #e3c473;
+  --st-before-bg: #403923;
+  --st-booked-fg: #a9c8d8;
+  --st-booked-bg: #263943;
+  --st-done-fg: #b7c9b0;
+  --st-done-bg: #303b30;
 }
 
-:root[data-theme="green"] {
-  --bg: #151a16;
-  --panel: #1d241e;
-  --panel-2: #26302a;
-  --panel-light: #28332b;
-  --green: #a8c9a0;
-  --green-dark: #587a58;
-  --text: #e3ebe2;
-  --muted: #a9b8a8;
-  --line: #36463a;
-  --accent: #b9d4a8;
-  --danger: #e0aaa0;
-  --danger-line: #8a5a52;
-  --danger-strong: #8a5a52;
-  --on-accent: #121912;
-  --input-line: #405543;
-  --placeholder: #86967f;
-  --sep: #5e7360;
-  --th-text: #bcd1b8;
-  --row-line: #2d3a30;
-  --bar-bg: #2e3b31;
-  --bar: #86a97c;
-  --st-before-fg: #e6c97c;
-  --st-before-bg: #463f24;
-  --st-booked-fg: #9fd0cf;
-  --st-booked-bg: #23403f;
-  --st-done-fg: #b6dca0;
-  --st-done-bg: #2f4626;
+:root[data-theme="cherry"] {
+  color-scheme: light;
+  --bg: #faf3ef;
+  --panel: #fffdfc;
+  --panel-2: #f1e7e3;
+  --panel-light: #f7eeea;
+  --green: #b77c8b;
+  --green-dark: #81515f;
+  --text: #34272b;
+  --muted: #78666b;
+  --line: #e5d5d5;
+  --accent: #b77c8b;
+  --danger: #a4483b;
+  --danger-line: #c98a80;
+  --danger-strong: #a4483b;
+  --on-accent: #fffdfc;
+  --input-line: #d9c4c5;
+  --placeholder: #9b858b;
+  --sep: #c6aeb2;
+  --th-text: #81515f;
+  --row-line: #eadedb;
+  --bar-bg: #eddfdc;
+  --bar: #b77c8b;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
 }
 
-:root[data-theme="rose"] {
-  --bg: #1d1719;
-  --panel: #281f22;
-  --panel-2: #35292d;
-  --panel-light: #33282b;
-  --green: #e0b0bc;
-  --green-dark: #8a5d69;
-  --text: #f0e4e7;
-  --muted: #bda9ae;
-  --line: #4b393e;
-  --accent: #e8bcc6;
-  --danger: #e6a9a0;
-  --danger-line: #8a5a52;
-  --danger-strong: #8a5a52;
-  --on-accent: #2a1a1f;
-  --input-line: #5a444b;
-  --placeholder: #a28f94;
-  --sep: #7d676d;
-  --th-text: #dcc0c8;
-  --row-line: #3e2f33;
-  --bar-bg: #4a3a3f;
-  --bar: #c58c9a;
-  --st-before-fg: #e8c878;
-  --st-before-bg: #4a3f24;
-  --st-booked-fg: #a8cfd6;
-  --st-booked-bg: #27404a;
-  --st-done-fg: #b6d9a8;
-  --st-done-bg: #2f4326;
+/* 테마: Sage Paper — 차분한 세이지와 종이 질감의 뉴트럴 톤 */
+:root[data-theme="sage"] {
+  color-scheme: light;
+  --bg: #f1f3ea;
+  --panel: #fcfcf7;
+  --panel-2: #e7ebdf;
+  --panel-light: #f5f6ef;
+  --green: #788b6a;
+  --green-dark: #596b4d;
+  --text: #30372d;
+  --muted: #70796b;
+  --line: #d7ddce;
+  --accent: #788b6a;
+  --danger: #a4483b;
+  --danger-line: #c98a80;
+  --danger-strong: #a4483b;
+  --on-accent: #fffdf8;
+  --input-line: #cbd3c0;
+  --placeholder: #929b89;
+  --sep: #b5c0aa;
+  --th-text: #536448;
+  --row-line: #e0e5d9;
+  --bar-bg: #e1e7d9;
+  --bar: #8b9d7b;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
 }
 
 body {
@@ -607,9 +650,215 @@ button:hover { opacity: 0.82; }
   overflow-wrap: anywhere;
 }
 
+/* 화면 전환 탭 (기록 / 캘린더) */
+.view-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  margin: -12px 0 0;
+  padding: 12px 0 8px;
+  background: var(--bg);
+}
+
+.view-tab {
+  flex: 1;
+  padding: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.view-tab[aria-pressed="true"] {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--on-accent);
+}
+
+.view[hidden] {
+  display: none;
+}
+
+.view.enter-right { animation: slideInRight 0.22s ease-out; }
+.view.enter-left { animation: slideInLeft 0.22s ease-out; }
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view.enter-right, .view.enter-left { animation: none; }
+}
+
+/* 캘린더 */
+.cal-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 10px;
+}
+
+.cal-title {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.cal-nav {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.cal-today {
+  padding: 9px 12px;
+  background: transparent;
+  border: 1px solid var(--green-dark);
+  border-radius: 20px;
+  color: var(--green);
+  font-size: 12px;
+}
+
+.cal-box {
+  padding: 8px 6px 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.cal-week,
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.cal-week span {
+  padding: 6px 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.cal-week .sun { color: var(--danger); }
+
+.cal-grid { row-gap: 2px; }
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 5px 0 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.cal-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.cal-day.sun .cal-num { color: var(--danger); }
+
+.cal-day.today .cal-num {
+  background: var(--green);
+  color: var(--on-accent);
+  font-weight: bold;
+}
+
+.cal-day.selected {
+  background: var(--panel-2);
+  border-color: var(--green);
+}
+
+.cal-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 7px;
+}
+
+.cal-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.cal-dot.before { background: var(--st-before-fg); }
+.cal-dot.booked { background: var(--st-booked-fg); }
+.cal-dot.done { background: var(--st-done-fg); }
+
+.cal-more {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1;
+}
+
+.cal-legend {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.cal-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cal-empty {
+  padding: 22px 8px 14px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.add-day-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px;
+  background: transparent;
+  border: 1px dashed var(--green-dark);
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 12px;
+}
+
 /* 테마 설정 */
 .theme-box {
-  padding: 16px;
+  padding: 12px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -617,17 +866,18 @@ button:hover { opacity: 0.82; }
 
 .theme-list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .theme-option {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
+  justify-content: center;
+  gap: 4px;
   min-width: 0;
-  padding: 10px 4px;
+  padding: 6px 3px;
   background: transparent;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -645,8 +895,8 @@ button:hover { opacity: 0.82; }
 
 .theme-swatch {
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border: 1px solid rgba(128, 128, 128, 0.45);
   border-radius: 50%;
   overflow: hidden;
@@ -876,6 +1126,13 @@ dialog p {
 <body>
 <div class="container">
 
+<nav class="view-tabs" aria-label="화면 전환">
+  <button type="button" class="view-tab" id="tabList" data-view="list" aria-pressed="true">기록</button>
+  <button type="button" class="view-tab" id="tabCal" data-view="cal" aria-pressed="false">캘린더</button>
+</nav>
+
+<div id="viewList" class="view">
+
 <div class="section-title" id="formTitle">새 공연 기록</div>
 
 <div class="form-box">
@@ -1000,6 +1257,35 @@ dialog p {
 
 <div class="theme-box">
   <div class="theme-list" id="themeList" role="radiogroup" aria-label="테마 선택"></div>
+</div>
+
+</div>
+
+<div id="viewCal" class="view" hidden>
+
+  <div class="cal-head">
+    <button type="button" class="cal-nav" id="calPrev" aria-label="이전 달">‹</button>
+    <div class="cal-title" id="calTitle" aria-live="polite"></div>
+    <button type="button" class="cal-nav" id="calNext" aria-label="다음 달">›</button>
+    <button type="button" class="cal-today" id="calToday">오늘</button>
+  </div>
+
+  <div class="cal-box">
+    <div class="cal-week" aria-hidden="true">
+      <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </div>
+
+  <div class="cal-legend" aria-hidden="true">
+    <span><i class="cal-dot before"></i>예매 전</span>
+    <span><i class="cal-dot booked"></i>예매 완료</span>
+    <span><i class="cal-dot done"></i>관람 완료</span>
+  </div>
+
+  <div class="section-title" id="calDetailTitle"></div>
+  <div id="calDetail"></div>
+
 </div>
 
 </div>
@@ -1339,12 +1625,12 @@ async function cancelEdit() {
   resetForm();
 }
 
-async function editGig(id) {
+async function editGig(id, skipConfirm = false) {
   const gig = gigs.find(g => g.id === id);
   if (!gig) return;
   if (editingId === id) return;
 
-  if (!(await confirmDiscardIfDirty())) return;
+  if (!skipConfirm && !(await confirmDiscardIfDirty())) return;
 
   editingId = id;
 
@@ -1549,8 +1835,8 @@ function advanceStatus(id) {
 function focusGigButton(id) {
   const safeId = window.CSS && CSS.escape ? CSS.escape(id) : id;
   const target =
-    els.list.querySelector(`[data-action="advance"][data-id="${safeId}"]`) ||
-    els.list.querySelector(`[data-action="edit"][data-id="${safeId}"]`);
+    activeGigRoot().querySelector(`[data-action="advance"][data-id="${safeId}"]`) ||
+    activeGigRoot().querySelector(`[data-action="edit"][data-id="${safeId}"]`);
 
   if (target) target.focus();
 }
@@ -1609,18 +1895,25 @@ function renderArtistSuggest() {
     .join("");
 }
 
-/* 목록의 버튼들: 이벤트 위임 */
-els.list.addEventListener("click", function(e) {
+/* 카드의 버튼들: 이벤트 위임 (기록 목록과 캘린더 공통) */
+function handleGigClick(e, fromCalendar) {
   const btn = e.target.closest("button[data-action]");
   if (!btn) return;
 
   const id = btn.dataset.id;
+  const action = btn.dataset.action;
 
-  if (btn.dataset.action === "edit") editGig(id);
-  if (btn.dataset.action === "delete") deleteGig(id);
-  if (btn.dataset.action === "advance") advanceStatus(id);
-  if (btn.dataset.action === "mark-done") setStatus(id, "관람 완료");
-});
+  if (action === "edit") {
+    if (fromCalendar) editFromCalendar(id);
+    else editGig(id);
+  }
+  if (action === "delete") deleteGig(id);
+  if (action === "advance") advanceStatus(id);
+  if (action === "mark-done") setStatus(id, "관람 완료");
+  if (action === "add-on-date") addOnDate(btn.dataset.date);
+}
+
+els.list.addEventListener("click", e => handleGigClick(e, false));
 
 /* ---------- 렌더링 ---------- */
 
@@ -1633,7 +1926,12 @@ function renderList() {
 
   els.list.innerHTML = [...gigs]
     .sort((a, b) => b.date.localeCompare(a.date))
-    .map(gig => {
+    .map(gigCardHTML)
+    .join("");
+}
+
+/* 공연 카드 하나의 HTML (기록 목록과 캘린더가 함께 사용) */
+function gigCardHTML(gig) {
       const title = escapeHTML(gigTitle(gig));
       const artist = escapeHTML(artistShort(gig.artists));
       const lineupFull = escapeHTML(gig.artists.join(", "));
@@ -1708,7 +2006,6 @@ function renderList() {
           ${hint}
         </div>
       `;
-    }).join("");
 }
 
 /* 통계 집계 기준
@@ -1861,6 +2158,7 @@ function render() {
   renderList();
   renderStats();
   renderSuggestions();
+  renderCalendar();
 }
 
 /* ---------- 내보내기 / 백업 ---------- */
@@ -2007,11 +2305,12 @@ const DEFAULT_THEME = "default";
 
 /* swatch: 미리보기 색 (배경 / 포인트) */
 const THEMES = [
+  { id: "white", name: "화이트", bg: "#ffffff", point: "#222222" },
+  { id: "black", name: "검정", bg: "#000000", point: "#eeeeee" },
   { id: "default", name: "웜 다크", bg: "#1c1b19", point: "#c0b39c" },
   { id: "light", name: "크림", bg: "#f4f0e8", point: "#7a6a4f" },
-  { id: "blue", name: "블루", bg: "#12161f", point: "#9db7e8" },
-  { id: "green", name: "그린", bg: "#151a16", point: "#a8c9a0" },
-  { id: "rose", name: "로즈", bg: "#1d1719", point: "#e0b0bc" }
+  { id: "cherry", name: "Cherry Cream", bg: "#faf3ef", point: "#b77c8b" },
+  { id: "sage", name: "Sage Paper", bg: "#f1f3ea", point: "#788b6a" }
 ];
 
 function currentTheme() {
@@ -2040,9 +2339,8 @@ function renderThemes() {
 
   $("themeList").innerHTML = THEMES.map(t => `
     <button type="button" class="theme-option" role="radio"
-      data-theme-id="${t.id}" aria-checked="${t.id === active}">
-      <span class="theme-swatch" style="background:${t.bg}"><i style="background:${t.point}"></i></span>
-      ${escapeHTML(t.name)}
+      data-theme-id="${t.id}" aria-label="${escapeHTML(t.name)}" aria-checked="${t.id === active}">
+      <span class="theme-swatch" style="background:${t.bg}" aria-hidden="true"><i style="background:${t.point}"></i></span>
     </button>
   `).join("");
 }
@@ -2052,18 +2350,285 @@ $("themeList").addEventListener("click", function(e) {
   if (btn) applyTheme(btn.dataset.themeId);
 });
 
+/* ---------- 화면 전환 (기록 / 캘린더) ---------- */
+
+const viewEls = {
+  list: $("viewList"),
+  cal: $("viewCal")
+};
+const tabEls = {
+  list: $("tabList"),
+  cal: $("tabCal")
+};
+
+let currentView = "list";
+const viewScroll = { list: 0, cal: 0 };
+
+/* 현재 보이는 화면의 카드 영역 */
+function activeGigRoot() {
+  return currentView === "cal" ? $("calDetail") : els.list;
+}
+
+function switchView(view) {
+  if (view === currentView || !viewEls[view]) return;
+
+  viewScroll[currentView] = window.scrollY;
+  currentView = view;
+
+  Object.keys(viewEls).forEach(key => {
+    viewEls[key].hidden = key !== view;
+    tabEls[key].setAttribute("aria-pressed", String(key === view));
+  });
+
+  /* 캘린더는 오른쪽에서, 기록은 왼쪽에서 들어오는 느낌 */
+  const pane = viewEls[view];
+  pane.classList.remove("enter-right", "enter-left");
+  void pane.offsetWidth;
+  pane.classList.add(view === "cal" ? "enter-right" : "enter-left");
+
+  if (view === "cal") renderCalendar();
+
+  window.scrollTo(0, view === "cal" ? 0 : viewScroll.list);
+}
+
+tabEls.list.addEventListener("click", () => switchView("list"));
+tabEls.cal.addEventListener("click", () => switchView("cal"));
+
+/* 좌우로 밀어서 화면 전환: 왼쪽으로 밀면 캘린더, 오른쪽으로 밀면 기록 */
+let swipeStart = null;
+
+document.addEventListener("touchstart", function(e) {
+  swipeStart = null;
+
+  if (e.touches.length !== 1 || els.dialog.open) return;
+  if (e.target.closest("input, select, textarea, .theme-list")) return;
+
+  const t = e.touches[0];
+
+  /* 화면 가장자리에서 시작한 건 브라우저의 뒤로가기 동작과 겹치므로 제외 */
+  if (t.clientX < 24 || t.clientX > window.innerWidth - 24) return;
+
+  swipeStart = { x: t.clientX, y: t.clientY, time: Date.now() };
+}, { passive: true });
+
+document.addEventListener("touchend", function(e) {
+  if (!swipeStart) return;
+
+  const start = swipeStart;
+  swipeStart = null;
+
+  const t = e.changedTouches[0];
+  const dx = t.clientX - start.x;
+  const dy = t.clientY - start.y;
+
+  if (Math.abs(dx) < 70) return;
+  if (Math.abs(dx) < Math.abs(dy) * 1.8) return;
+  if (Date.now() - start.time > 700) return;
+
+  /* 글자를 드래그해서 선택한 경우는 무시 */
+  const selection = window.getSelection && window.getSelection().toString();
+  if (selection) return;
+
+  switchView(dx < 0 ? "cal" : "list");
+}, { passive: true });
+
+/* ---------- 캘린더 ---------- */
+
+const CAL_STATUS_CLASS = {
+  "예매 전": "before",
+  "예매 완료": "booked",
+  "관람 완료": "done"
+};
+const CAL_MAX_DOTS = 3;
+
+const pad2 = n => String(n).padStart(2, "0");
+
+const calEls = {
+  title: $("calTitle"),
+  grid: $("calGrid"),
+  detailTitle: $("calDetailTitle"),
+  detail: $("calDetail")
+};
+
+let calYear = 0;
+let calMonth = 0;      /* 0~11 */
+let calSelected = null; /* YYYY-MM-DD 또는 null */
+
+function calGoToToday() {
+  const today = todayISO();
+
+  calYear = Number(today.slice(0, 4));
+  calMonth = Number(today.slice(5, 7)) - 1;
+  calSelected = today;
+}
+
+function calMove(delta) {
+  const d = new Date(calYear, calMonth + delta, 1);
+
+  calYear = d.getFullYear();
+  calMonth = d.getMonth();
+
+  /* 이번 달로 오면 오늘을 선택, 다른 달이면 선택을 비움 */
+  const today = todayISO();
+  calSelected =
+    today.slice(0, 7) === `${calYear}-${pad2(calMonth + 1)}` ? today : null;
+
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const startDow = new Date(calYear, calMonth, 1).getDay();
+  const days = new Date(calYear, calMonth + 1, 0).getDate();
+  const prefix = `${calYear}-${pad2(calMonth + 1)}`;
+  const today = todayISO();
+
+  /* 이번 달 공연을 날짜별로 */
+  const byDate = {};
+
+  gigs.forEach(gig => {
+    if (!gig.date.startsWith(prefix + "-")) return;
+    (byDate[gig.date] = byDate[gig.date] || []).push(gig);
+  });
+
+  calEls.title.textContent = `${calYear}년 ${calMonth + 1}월`;
+
+  let html = "";
+
+  for (let i = 0; i < startDow; i++) html += '<div aria-hidden="true"></div>';
+
+  for (let day = 1; day <= days; day++) {
+    const date = `${prefix}-${pad2(day)}`;
+    const list = byDate[date] || [];
+    const dow = (startDow + day - 1) % 7;
+
+    const classes = ["cal-day"];
+    if (dow === 0) classes.push("sun");
+    if (date === today) classes.push("today");
+    if (date === calSelected) classes.push("selected");
+
+    const dots = list
+      .slice(0, CAL_MAX_DOTS)
+      .map(g => `<i class="cal-dot ${CAL_STATUS_CLASS[g.status] || "before"}"></i>`)
+      .join("");
+    const more = list.length > CAL_MAX_DOTS
+      ? `<span class="cal-more">+${list.length - CAL_MAX_DOTS}</span>`
+      : "";
+
+    const label =
+      `${calMonth + 1}월 ${day}일 ${WEEKDAYS[dow]}요일` +
+      (list.length ? `, 공연 ${list.length}건` : "") +
+      (date === today ? ", 오늘" : "");
+
+    html += `
+      <button type="button" class="${classes.join(" ")}" data-date="${date}"
+        aria-label="${label}" aria-pressed="${date === calSelected}">
+        <span class="cal-num">${day}</span>
+        <span class="cal-dots">${dots}${more}</span>
+      </button>`;
+  }
+
+  calEls.grid.innerHTML = html;
+
+  renderCalendarDetail();
+}
+
+/* 선택한 날짜의 공연 */
+function renderCalendarDetail() {
+  if (!calSelected) {
+    calEls.detailTitle.textContent = "날짜를 누르면 그날의 공연이 보여요";
+    calEls.detail.innerHTML = "";
+    return;
+  }
+
+  const [year, month, day] = calSelected.split("-").map(Number);
+  const weekday = WEEKDAYS[new Date(year, month - 1, day).getDay()];
+  const list = gigs.filter(g => g.date === calSelected);
+
+  calEls.detailTitle.innerHTML =
+    `${month}월 ${day}일 (${weekday}) ` +
+    (list.length ? `<small>공연 ${list.length}건</small>` : "");
+
+  const addButton = `
+    <button type="button" class="add-day-btn"
+      data-action="add-on-date" data-date="${calSelected}">
+      + 이 날짜로 기록 추가
+    </button>`;
+
+  calEls.detail.innerHTML = list.length
+    ? `<div class="table-wrap"><div class="gig-list">${list.map(gigCardHTML).join("")}</div></div>${addButton}`
+    : `<div class="cal-empty">이 날은 기록된 공연이 없어요.</div>${addButton}`;
+}
+
+calEls.grid.addEventListener("click", function(e) {
+  const btn = e.target.closest("button[data-date]");
+  if (!btn) return;
+
+  calSelected = btn.dataset.date;
+  renderCalendar();
+});
+
+calEls.detail.addEventListener("click", e => handleGigClick(e, true));
+
+$("calPrev").addEventListener("click", () => calMove(-1));
+$("calNext").addEventListener("click", () => calMove(1));
+$("calToday").addEventListener("click", function() {
+  calGoToToday();
+  renderCalendar();
+});
+
+/* 캘린더에서 수정: 기록 화면으로 이동해서 폼에 불러옴 */
+async function editFromCalendar(id) {
+  const gig = gigs.find(g => g.id === id);
+  if (!gig) return;
+
+  if (editingId !== id && !(await confirmDiscardIfDirty())) return;
+
+  switchView("list");
+
+  if (editingId === id) {
+    els.formTitle.scrollIntoView({ behavior: "smooth" });
+    els.artist.focus({ preventScroll: true });
+    return;
+  }
+
+  await editGig(id, true);
+}
+
+/* 캘린더에서 선택한 날짜로 새 기록 만들기 */
+async function addOnDate(date) {
+  if (!isValidDate(date)) return;
+  if (!(await confirmDiscardIfDirty())) return;
+
+  clearForm();
+  els.date.value = date;
+
+  /* 지난 날짜면 '관람 완료', 앞으로 올 날짜면 '예매 전'으로 미리 선택 */
+  els.status.value = daysUntil(date) < 0 ? "관람 완료" : "예매 전";
+
+  takeSnapshot();
+  renderList();
+  switchView("list");
+
+  els.formTitle.scrollIntoView({ behavior: "smooth" });
+  els.artist.focus({ preventScroll: true });
+}
+
 /* ---------- 초기화 ---------- */
 
 /* 정리된 데이터를 다시 저장 (구버전 데이터 마이그레이션) */
 save();
 els.date.value = todayISO();
 takeSnapshot();
+calGoToToday();
 render();
 renderThemes();
 
-/* 탭으로 돌아왔을 때 D-day와 힌트를 최신 날짜로 갱신 */
+/* 탭으로 돌아왔을 때 D-day와 힌트, 오늘 표시를 최신 날짜로 갱신 */
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) renderList();
+  if (!document.hidden) {
+    renderList();
+    renderCalendar();
+  }
 });
 </script>
 
