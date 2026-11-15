@@ -778,7 +778,7 @@ button:hover { opacity: 0.82; }
   text-align: center;
 }
 
-.cal-week .sun { color: var(--danger); }
+.cal-week .weekend { color: var(--danger); }
 
 .cal-grid { row-gap: 2px; }
 
@@ -807,7 +807,7 @@ button:hover { opacity: 0.82; }
   border-radius: 50%;
 }
 
-.cal-day.sun .cal-num { color: var(--danger); }
+.cal-day.weekend .cal-num { color: var(--danger); }
 
 .cal-day.today .cal-num {
   background: var(--green);
@@ -1078,6 +1078,38 @@ dialog p {
   gap: 8px;
 }
 
+dialog .dialog-note {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+#textBox {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid var(--input-line);
+  border-radius: 6px;
+  background: var(--panel-light);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.text-link {
+  display: block;
+  margin: -4px 0 10px;
+  padding: 4px 0;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 11px;
+  text-decoration: underline;
+}
+
 .dialog-buttons button { flex: 1; }
 
 .danger-btn {
@@ -1219,6 +1251,7 @@ dialog p {
   </div>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" class="visually-hidden" tabindex="-1" aria-label="백업 파일 선택">
+<button type="button" class="text-link" id="textBackupBtn">파일 저장이 안 될 때 → 텍스트로 백업/복원</button>
 
 <div class="table-wrap">
   <div id="gigList" class="gig-list"></div>
@@ -1295,7 +1328,7 @@ dialog p {
 
   <div class="cal-box">
     <div class="cal-week" aria-hidden="true">
-      <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+      <span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="weekend">토</span><span class="weekend">일</span>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
@@ -1320,6 +1353,20 @@ dialog p {
   <div class="dialog-buttons">
     <button type="button" class="cancel-btn" id="confirmNo">취소</button>
     <button type="button" class="danger-btn" id="confirmYes">확인</button>
+  </div>
+</dialog>
+
+<dialog id="textDialog" aria-labelledby="textTitle">
+  <p id="textTitle"><strong>텍스트로 백업 / 복원</strong></p>
+  <p class="dialog-note">
+    <b>백업</b>: [백업 복사]를 누르고 메모 앱 등에 붙여넣어 보관하세요.<br>
+    <b>복원</b>: 아래 칸에 백업 텍스트를 붙여넣고 [복원]을 누르세요.
+  </p>
+  <textarea id="textBox" rows="7" spellcheck="false" autocomplete="off" aria-label="백업 텍스트"></textarea>
+  <div class="dialog-buttons">
+    <button type="button" class="cancel-btn" id="textClose">닫기</button>
+    <button type="button" id="textCopy">백업 복사</button>
+    <button type="button" id="textRestore">복원</button>
   </div>
 </dialog>
 
@@ -2273,21 +2320,23 @@ function exportCSV() {
 }
 
 /* 복원 가능한 JSON 백업 */
+function backupText() {
+  return JSON.stringify({
+    app: "gig-tracker",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    gigs
+  }, null, 2);
+}
+
 function exportJSON() {
   if (gigs.length === 0) {
     showToast("백업할 공연 기록이 없습니다.", true);
     return;
   }
 
-  const data = {
-    app: "gig-tracker",
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    gigs
-  };
-
   downloadFile(
-    JSON.stringify(data, null, 2),
+    backupText(),
     `공연기록_백업_${todayStamp()}.json`,
     "application/json;charset=utf-8;"
   );
@@ -2301,12 +2350,26 @@ async function importJSON(file) {
     return;
   }
 
+  let text;
+
+  try {
+    text = await file.text();
+  } catch (error) {
+    showToast("파일을 읽을 수 없습니다.", true);
+    return;
+  }
+
+  await importText(text);
+}
+
+/* 백업 텍스트(파일 내용 또는 붙여넣은 내용)를 기록에 추가 */
+async function importText(text) {
   let parsed;
 
   try {
-    parsed = JSON.parse(await file.text());
+    parsed = JSON.parse(text);
   } catch (error) {
-    showToast("올바른 백업 파일이 아닙니다.", true);
+    showToast("올바른 백업 내용이 아닙니다.", true);
     return;
   }
 
@@ -2344,6 +2407,59 @@ async function importJSON(file) {
   render();
   showToast(`${added.length}개의 공연 기록을 복원했습니다.`);
 }
+
+/* 텍스트로 백업/복원 (파일 저장이 막히는 앱 안 브라우저용) */
+const textDialog = $("textDialog");
+const textBox = $("textBox");
+
+function openTextDialog() {
+  textBox.value = "";
+
+  if (typeof textDialog.showModal === "function") textDialog.showModal();
+  else textDialog.setAttribute("open", "");
+}
+
+$("textBackupBtn").addEventListener("click", openTextDialog);
+$("textClose").addEventListener("click", () => textDialog.close());
+
+$("textCopy").addEventListener("click", async function() {
+  if (gigs.length === 0) {
+    showToast("백업할 공연 기록이 없습니다.", true);
+    return;
+  }
+
+  textBox.value = backupText();
+  textBox.focus();
+  textBox.select();
+
+  let copied = false;
+
+  try {
+    await navigator.clipboard.writeText(textBox.value);
+    copied = true;
+  } catch (error) {
+    try { copied = document.execCommand("copy"); } catch (e) {}
+  }
+
+  showToast(
+    copied
+      ? "복사했어요. 메모 앱에 붙여넣어 보관하세요."
+      : "자동 복사가 안 돼요. 선택된 글자를 길게 눌러 복사해 주세요.",
+    !copied
+  );
+});
+
+$("textRestore").addEventListener("click", async function() {
+  const text = textBox.value.trim();
+
+  if (!text) {
+    showToast("복원할 텍스트를 붙여넣어 주세요.", true);
+    return;
+  }
+
+  textDialog.close();
+  await importText(text);
+});
 
 $("csvBtn").addEventListener("click", exportCSV);
 $("jsonBtn").addEventListener("click", exportJSON);
@@ -2452,8 +2568,8 @@ let swipeStart = null;
 document.addEventListener("touchstart", function(e) {
   swipeStart = null;
 
-  if (e.touches.length !== 1 || els.dialog.open) return;
-  if (e.target.closest("input, select, textarea, .theme-list")) return;
+  if (e.touches.length !== 1 || document.querySelector("dialog[open]")) return;
+  if (e.target.closest("input, select, textarea, dialog, .theme-list")) return;
 
   const t = e.touches[0];
 
@@ -2529,7 +2645,8 @@ function calMove(delta) {
 }
 
 function renderCalendar() {
-  const startDow = new Date(calYear, calMonth, 1).getDay();
+  /* 월요일이 첫 칸: 월=0 … 일=6 */
+  const startDow = (new Date(calYear, calMonth, 1).getDay() + 6) % 7;
   const days = new Date(calYear, calMonth + 1, 0).getDate();
   const prefix = `${calYear}-${pad2(calMonth + 1)}`;
   const today = todayISO();
@@ -2551,10 +2668,10 @@ function renderCalendar() {
   for (let day = 1; day <= days; day++) {
     const date = `${prefix}-${pad2(day)}`;
     const list = byDate[date] || [];
-    const dow = (startDow + day - 1) % 7;
+    const dow = (startDow + day) % 7; /* 일=0 … 토=6 (요일 이름용) */
 
     const classes = ["cal-day"];
-    if (dow === 0) classes.push("sun");
+    if (dow === 0 || dow === 6) classes.push("weekend");
     if (date === today) classes.push("today");
     if (date === calSelected) classes.push("selected");
 
