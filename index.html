@@ -11,7 +11,10 @@ try {
   /* 삭제된 테마는 기본 테마로, 기존 로즈 테마는 체리 크림으로 연결 */
   if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa") savedTheme = "default";
   if (savedTheme === "rose") savedTheme = "cherry";
-  if (savedTheme) {
+  /* 저장된 테마가 없거나 알 수 없는 값이면 화이트가 기본 */
+  if (["white", "black", "default", "light", "cherry", "sage"].indexOf(savedTheme) === -1) {
+    document.documentElement.setAttribute("data-theme", "white");
+  } else {
     document.documentElement.setAttribute("data-theme", savedTheme);
     localStorage.setItem("gigTheme", savedTheme);
   }
@@ -2354,7 +2357,7 @@ els.importFile.addEventListener("change", async function() {
 /* ---------- 테마 ---------- */
 
 const THEME_KEY = "gigTheme";
-const DEFAULT_THEME = "default";
+const DEFAULT_THEME = "white"; /* 처음 들어왔을 때의 테마 */
 
 /* swatch: 미리보기 색 (배경 / 포인트) */
 const THEMES = [
@@ -2374,11 +2377,7 @@ function currentTheme() {
 function applyTheme(id) {
   if (!THEMES.some(t => t.id === id)) id = DEFAULT_THEME;
 
-  if (id === DEFAULT_THEME) {
-    document.documentElement.removeAttribute("data-theme");
-  } else {
-    document.documentElement.setAttribute("data-theme", id);
-  }
+  document.documentElement.setAttribute("data-theme", id);
 
   try {
     localStorage.setItem(THEME_KEY, id);
