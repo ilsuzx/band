@@ -5,1729 +5,2067 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>공연 기록</title>
 <script>
-/* 저장된 테마를 화면이 그려지기 전에 적용 (깜빡임 방지) /
+/* 저장된 테마를 화면이 그려지기 전에 적용 (깜빡임 방지) */
 try {
-var savedTheme = localStorage.getItem("gigTheme");
-/ 삭제된 테마는 기본 테마로, 기존 로즈 테마는 체리 크림으로 연결 */
-if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa") savedTheme = "default";
-if (savedTheme === "rose") savedTheme = "cherry";
-if (savedTheme) {
-document.documentElement.setAttribute("data-theme", savedTheme);
-localStorage.setItem("gigTheme", savedTheme);
-}
+  var savedTheme = localStorage.getItem("gigTheme");
+  if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
 } catch (e) {}
 </script>
+
 <style>
-￼ { box-sizing: border-box; }
+* { box-sizing: border-box; }
+
 :root {
-color-scheme: dark;
---bg: #1c1b19;
---panel: #272522;
---panel-2: #35312c;
---panel-light: #33302c;
---green: #c0b39c;
---green-dark: #746b5e;
---text: #e8e4dc;
---muted: #b5aea2;
---line: #49443d;
---accent: #c9b99b;
---danger: #d9aca2;
---danger-line: #8a625a;
---danger-strong: #8a625a;
---on-accent: #25221e;
---input-line: #514c44;
---placeholder: #9a9488;
---sep: #7d766b;
---th-text: #d0c4ad;
---row-line: #3c3933;
---bar-bg: #45413a;
---bar: #b5a68d;
---picker-filter: none;
---st-before-fg: #e3c473;
---st-before-bg: #4d4127;
---st-booked-fg: #9fc6c9;
---st-booked-bg: #2f3f41;
---st-done-fg: #adca9d;
---st-done-bg: #37432f;
+  color-scheme: dark;
+  --bg: #1c1b19;
+  --panel: #272522;
+  --panel-2: #35312c;
+  --panel-light: #33302c;
+  --green: #c0b39c;
+  --green-dark: #746b5e;
+  --text: #e8e4dc;
+  --muted: #b5aea2;
+  --line: #49443d;
+  --accent: #c9b99b;
+  --danger: #d9aca2;
+  --danger-line: #8a625a;
+  --danger-strong: #8a625a;
+  --on-accent: #25221e;
+  --input-line: #514c44;
+  --placeholder: #9a9488;
+  --sep: #7d766b;
+  --th-text: #d0c4ad;
+  --row-line: #3c3933;
+  --bar-bg: #45413a;
+  --bar: #b5a68d;
+  --picker-filter: none;
+  --st-before-fg: #e3c473;
+  --st-before-bg: #4d4127;
+  --st-booked-fg: #9fc6c9;
+  --st-booked-bg: #2f3f41;
+  --st-done-fg: #adca9d;
+  --st-done-bg: #37432f;
 }
-/* 테마: 기본(웜 다크)은 위 값, 나머지는 아래에서 덮어씀 /
-/ 심플 화이트 테마 */
-:root[data-theme="white"] {
-color-scheme: light;
---bg: #ffffff;
---panel: #ffffff;
---panel-2: #f5f5f5;
---panel-light: #fafafa;
---green: #222222;
---green-dark: #666666;
---text: #171717;
---muted: #666666;
---line: #e5e5e5;
---accent: #222222;
---danger: #b42318;
---danger-line: #e2a09a;
---danger-strong: #b42318;
---on-accent: #ffffff;
---input-line: #d8d8d8;
---placeholder: #999999;
---sep: #bdbdbd;
---th-text: #333333;
---row-line: #eeeeee;
---bar-bg: #eeeeee;
---bar: #555555;
---st-before-fg: #85600f;
---st-before-bg: #f3e4bd;
---st-booked-fg: #2c6064;
---st-booked-bg: #d3e8ea;
---st-done-fg: #3b652c;
---st-done-bg: #dcebd2;
-}
+
+/* 테마: 기본(웜 다크)은 위 값, 나머지는 아래에서 덮어씀 */
 :root[data-theme="light"] {
-color-scheme: light;
---bg: #f4f0e8;
---panel: #fffdf8;
---panel-2: #ece6d9;
---panel-light: #f3eee3;
---green: #7a6a4f;
---green-dark: #a89877;
---text: #2b2824;
---muted: #6b6356;
---line: #d9d1c1;
---accent: #86683a;
---danger: #a4483b;
---danger-line: #c98a80;
---danger-strong: #a4483b;
---on-accent: #fffdf8;
---input-line: #cfc6b3;
---placeholder: #968d7c;
---sep: #b0a794;
---th-text: #5b5140;
---row-line: #e5dece;
---bar-bg: #e4dccb;
---bar: #a58b57;
---st-before-fg: #85600f;
---st-before-bg: #f3e4bd;
---st-booked-fg: #2c6064;
---st-booked-bg: #d3e8ea;
---st-done-fg: #3b652c;
---st-done-bg: #dcebd2;
+  color-scheme: light;
+  --bg: #f4f0e8;
+  --panel: #fffdf8;
+  --panel-2: #ece6d9;
+  --panel-light: #f3eee3;
+  --green: #7a6a4f;
+  --green-dark: #a89877;
+  --text: #2b2824;
+  --muted: #6b6356;
+  --line: #d9d1c1;
+  --accent: #86683a;
+  --danger: #a4483b;
+  --danger-line: #c98a80;
+  --danger-strong: #a4483b;
+  --on-accent: #fffdf8;
+  --input-line: #cfc6b3;
+  --placeholder: #968d7c;
+  --sep: #b0a794;
+  --th-text: #5b5140;
+  --row-line: #e5dece;
+  --bar-bg: #e4dccb;
+  --bar: #a58b57;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
 }
-/* 테마: Modern Black — 선명한 대비와 차분한 모노톤 */
-:root[data-theme="black"] {
-color-scheme: dark;
---bg: #000000;
---panel: #101010;
---panel-2: #1b1b1b;
---panel-light: #151515;
---green: #f0f0f0;
---green-dark: #888888;
---text: #f5f5f5;
---muted: #aaaaaa;
---line: #303030;
---accent: #f0f0f0;
---danger: #e0a3a3;
---danger-line: #875b60;
---danger-strong: #c77d83;
---on-accent: #000000;
---input-line: #3a3a3a;
---placeholder: #777777;
---sep: #666666;
---th-text: #dddddd;
---row-line: #262626;
---bar-bg: #292929;
---bar: #d0d0d0;
---st-before-fg: #e3c473;
---st-before-bg: #403923;
---st-booked-fg: #a9c8d8;
---st-booked-bg: #263943;
---st-done-fg: #b7c9b0;
---st-done-bg: #303b30;
+
+:root[data-theme="blue"] {
+  --bg: #12161f;
+  --panel: #1a2030;
+  --panel-2: #222a3d;
+  --panel-light: #232b3f;
+  --green: #9db7e8;
+  --green-dark: #4b5d86;
+  --text: #e6ebf5;
+  --muted: #a4aec4;
+  --line: #33405c;
+  --accent: #aac4f2;
+  --danger: #e3a9a9;
+  --danger-line: #8c5a5a;
+  --danger-strong: #8c5a5a;
+  --on-accent: #101521;
+  --input-line: #3b4868;
+  --placeholder: #7f8aa3;
+  --sep: #5b6785;
+  --th-text: #b9c7e6;
+  --row-line: #2b354d;
+  --bar-bg: #2c3652;
+  --bar: #7f9fd8;
+  --st-before-fg: #e8c878;
+  --st-before-bg: #403a24;
+  --st-booked-fg: #9fd0e8;
+  --st-booked-bg: #1f3a4a;
+  --st-done-fg: #9ed8b0;
+  --st-done-bg: #1f3d2e;
 }
-:root[data-theme="cherry"] {
-color-scheme: light;
---bg: #faf3ef;
---panel: #fffdfc;
---panel-2: #f1e7e3;
---panel-light: #f7eeea;
---green: #b77c8b;
---green-dark: #81515f;
---text: #34272b;
---muted: #78666b;
---line: #e5d5d5;
---accent: #b77c8b;
---danger: #a4483b;
---danger-line: #c98a80;
---danger-strong: #a4483b;
---on-accent: #fffdfc;
---input-line: #d9c4c5;
---placeholder: #9b858b;
---sep: #c6aeb2;
---th-text: #81515f;
---row-line: #eadedb;
---bar-bg: #eddfdc;
---bar: #b77c8b;
---st-before-fg: #85600f;
---st-before-bg: #f3e4bd;
---st-booked-fg: #2c6064;
---st-booked-bg: #d3e8ea;
---st-done-fg: #3b652c;
---st-done-bg: #dcebd2;
+
+:root[data-theme="green"] {
+  --bg: #151a16;
+  --panel: #1d241e;
+  --panel-2: #26302a;
+  --panel-light: #28332b;
+  --green: #a8c9a0;
+  --green-dark: #587a58;
+  --text: #e3ebe2;
+  --muted: #a9b8a8;
+  --line: #36463a;
+  --accent: #b9d4a8;
+  --danger: #e0aaa0;
+  --danger-line: #8a5a52;
+  --danger-strong: #8a5a52;
+  --on-accent: #121912;
+  --input-line: #405543;
+  --placeholder: #86967f;
+  --sep: #5e7360;
+  --th-text: #bcd1b8;
+  --row-line: #2d3a30;
+  --bar-bg: #2e3b31;
+  --bar: #86a97c;
+  --st-before-fg: #e6c97c;
+  --st-before-bg: #463f24;
+  --st-booked-fg: #9fd0cf;
+  --st-booked-bg: #23403f;
+  --st-done-fg: #b6dca0;
+  --st-done-bg: #2f4626;
 }
-/* 테마: Sage Paper — 차분한 세이지와 종이 질감의 뉴트럴 톤 */
-:root[data-theme="sage"] {
-color-scheme: light;
---bg: #f1f3ea;
---panel: #fcfcf7;
---panel-2: #e7ebdf;
---panel-light: #f5f6ef;
---green: #788b6a;
---green-dark: #596b4d;
---text: #30372d;
---muted: #70796b;
---line: #d7ddce;
---accent: #788b6a;
---danger: #a4483b;
---danger-line: #c98a80;
---danger-strong: #a4483b;
---on-accent: #fffdf8;
---input-line: #cbd3c0;
---placeholder: #929b89;
---sep: #b5c0aa;
---th-text: #536448;
---row-line: #e0e5d9;
---bar-bg: #e1e7d9;
---bar: #8b9d7b;
---st-before-fg: #85600f;
---st-before-bg: #f3e4bd;
---st-booked-fg: #2c6064;
---st-booked-bg: #d3e8ea;
---st-done-fg: #3b652c;
---st-done-bg: #dcebd2;
+
+:root[data-theme="rose"] {
+  --bg: #1d1719;
+  --panel: #281f22;
+  --panel-2: #35292d;
+  --panel-light: #33282b;
+  --green: #e0b0bc;
+  --green-dark: #8a5d69;
+  --text: #f0e4e7;
+  --muted: #bda9ae;
+  --line: #4b393e;
+  --accent: #e8bcc6;
+  --danger: #e6a9a0;
+  --danger-line: #8a5a52;
+  --danger-strong: #8a5a52;
+  --on-accent: #2a1a1f;
+  --input-line: #5a444b;
+  --placeholder: #a28f94;
+  --sep: #7d676d;
+  --th-text: #dcc0c8;
+  --row-line: #3e2f33;
+  --bar-bg: #4a3a3f;
+  --bar: #c58c9a;
+  --st-before-fg: #e8c878;
+  --st-before-bg: #4a3f24;
+  --st-booked-fg: #a8cfd6;
+  --st-booked-bg: #27404a;
+  --st-done-fg: #b6d9a8;
+  --st-done-bg: #2f4326;
 }
-/* 테마: Cocoa Latte — 따뜻한 코코아와 빈티지 베이지 */
+
 body {
-margin: 0;
-padding: 32px 18px 45px;
-background: var(--bg);
-color: var(--text);
-font-family: Arial, sans-serif;
-line-height: 1.5;
+  margin: 0;
+  padding: 32px 18px 45px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  line-height: 1.5;
 }
+
 .container {
-width: 100%;
-max-width: 760px;
-margin: auto;
+  width: 100%;
+  max-width: 760px;
+  margin: auto;
 }
+
 .section-title {
-display: flex;
-align-items: center;
-gap: 10px;
-margin: 34px 0 13px;
-padding-bottom: 10px;
-border-bottom: 1px solid var(--line);
-font-size: 15px;
-font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 34px 0 13px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+  font-weight: bold;
 }
+
 .section-title::before {
-content: "";
-width: 4px;
-height: 15px;
-background: var(--green);
-border-radius: 2px;
+  content: "";
+  width: 4px;
+  height: 15px;
+  background: var(--green);
+  border-radius: 2px;
 }
+
 .section-title small {
-color: var(--muted);
-font-size: 12px;
-font-weight: normal;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: normal;
 }
+
 .form-box {
-background: var(--panel);
-border: 1px solid var(--line);
-border-radius: 10px;
-padding: 20px;
-min-width: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  min-width: 0;
 }
+
 .form-grid {
-display: grid;
-grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-gap: 17px 14px;
-min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 17px 14px;
+  min-width: 0;
 }
+
 .field {
-display: flex;
-flex-direction: column;
-gap: 7px;
-min-width: 0;
-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  width: 100%;
 }
+
 .field label {
-color: var(--green);
-font-size: 12px;
-font-weight: bold;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: bold;
 }
+
 input, select {
-display: block;
-width: 100%;
-max-width: 100%;
-min-width: 0;
-height: 43px;
-padding: 10px 12px;
-border: 1px solid var(--input-line);
-border-radius: 6px;
-background: var(--panel-light);
-color: var(--text);
-font-size: 14px;
-outline: none;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 43px;
+  padding: 10px 12px;
+  border: 1px solid var(--input-line);
+  border-radius: 6px;
+  background: var(--panel-light);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
 }
+
 input:focus, select:focus {
-border-color: var(--green);
+  border-color: var(--green);
 }
+
 /* 키보드 사용자를 위한 포커스 표시 */
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-outline: 2px solid var(--accent);
-outline-offset: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
+
 input::placeholder {
-color: var(--placeholder);
+  color: var(--placeholder);
 }
+
 input[type="date"] {
-padding: 10px 8px;
--webkit-appearance: none;
-appearance: none;
+  padding: 10px 8px;
+  -webkit-appearance: none;
+  appearance: none;
 }
+
 input[type="date"]::-webkit-date-and-time-value {
-text-align: left;
+  text-align: left;
 }
+
 input[type="date"]::-webkit-calendar-picker-indicator {
-margin: 0;
-padding: 0;
+  margin: 0;
+  padding: 0;
 }
+
 input::-webkit-calendar-picker-indicator {
-filter: var(--picker-filter);
+  filter: var(--picker-filter);
 }
+
 select {
-appearance: none;
--webkit-appearance: none;
-cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
 }
+
 .form-buttons {
-display: flex;
-gap: 8px;
-margin-top: 19px;
+  display: flex;
+  gap: 8px;
+  margin-top: 19px;
 }
+
 button {
-border: 1px solid var(--green-dark);
-border-radius: 6px;
-background: var(--green);
-color: var(--on-accent);
-padding: 10px 15px;
-font-size: 12px;
-font-weight: bold;
-cursor: pointer;
+  border: 1px solid var(--green-dark);
+  border-radius: 6px;
+  background: var(--green);
+  color: var(--on-accent);
+  padding: 10px 15px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
 }
+
 button:hover { opacity: 0.82; }
+
 .form-buttons button { flex: 1; }
+
 .cancel-btn {
-background: transparent;
-color: var(--muted);
-border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--line);
 }
+
 .section-heading {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
+
 .section-heading .section-title {
-flex: 1;
-min-width: 0;
+  flex: 1;
+  min-width: 0;
 }
+
 .heading-actions {
-display: flex;
-gap: 6px;
-flex-shrink: 0;
-margin-top: 20px;
-margin-bottom: 13px;
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-top: 20px;
+  margin-bottom: 13px;
 }
+
 .export-btn {
-background: transparent;
-color: var(--green);
-border: 1px solid var(--green-dark);
-padding: 8px 11px;
-font-size: 12px;
-border-radius: 20px;
-white-space: nowrap;
+  background: transparent;
+  color: var(--green);
+  border: 1px solid var(--green-dark);
+  padding: 8px 11px;
+  font-size: 12px;
+  border-radius: 20px;
+  white-space: nowrap;
 }
+
 .visually-hidden {
-position: absolute;
-width: 1px;
-height: 1px;
-margin: -1px;
-padding: 0;
-overflow: hidden;
-clip: rect(0, 0, 0, 0);
-white-space: nowrap;
-border: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
+
 /* 공연 목록 */
 .gig-list {
-width: 100%;
-background: var(--panel);
+  width: 100%;
+  background: var(--panel);
 }
+
 .gig-card {
-padding: 13px 15px;
-border-bottom: 1px solid var(--line);
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--line);
 }
+
 .gig-card:last-child {
-border-bottom: none;
+  border-bottom: none;
 }
+
 .gig-card.editing {
-background: var(--panel-light);
-box-shadow: inset 3px 0 0 var(--green);
+  background: var(--panel-light);
+  box-shadow: inset 3px 0 0 var(--green);
 }
+
 .gig-top {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 8px;
-min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
 }
+
 .gig-artist {
-color: var(--green);
-font-size: 14px;
-font-weight: bold;
-min-width: 0;
-overflow-wrap: anywhere;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: bold;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
+
 .gig-top-right {
-display: flex;
-align-items: center;
-justify-content: flex-end;
-gap: 7px;
-flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-shrink: 0;
 }
+
 .gig-bottom {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 10px;
-margin-top: 5px;
-min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
+  min-width: 0;
 }
+
 .gig-info {
-display: flex;
-align-items: center;
-gap: 6px;
-min-width: 0;
-overflow: hidden;
-white-space: nowrap;
-color: var(--muted);
-font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 12px;
 }
+
 .gig-info span {
-overflow: hidden;
-text-overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 .gig-info .gig-date {
-flex-shrink: 0;
+  flex-shrink: 0;
 }
+
 .gig-info .gig-separator {
-flex-shrink: 0;
-color: var(--sep);
+  flex-shrink: 0;
+  color: var(--sep);
 }
+
 .gig-price {
-flex-shrink: 0;
-color: var(--accent);
-font-size: 12px;
-font-weight: bold;
-white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
 }
+
 .weekday {
-color: var(--green);
-font-size: 11px;
+  color: var(--green);
+  font-size: 11px;
 }
+
 .gig-actions {
-display: flex;
-gap: 4px;
+  display: flex;
+  gap: 4px;
 }
+
 .small-btn {
-padding: 5px 8px;
-background: transparent;
-border: 1px solid var(--line);
-color: var(--green);
-border-radius: 5px;
-font-size: 11px;
+  padding: 5px 8px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--green);
+  border-radius: 5px;
+  font-size: 11px;
 }
+
 .delete-btn {
-color: var(--danger);
-border-color: var(--danger-line);
+  color: var(--danger);
+  border-color: var(--danger-line);
 }
+
 /* 공연 상태 */
 .status {
-display: inline-block;
-padding: 3px 7px;
-border-radius: 20px;
-font-size: 11px;
-font-weight: bold;
-white-space: nowrap;
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
 }
+
 /* 상태 앞 점: 색을 구분하기 어려운 경우에도 모양으로 보조 */
 .status::before {
-content: "";
-display: inline-block;
-width: 6px;
-height: 6px;
-margin-right: 5px;
-border-radius: 50%;
-background: currentColor;
-vertical-align: 1px;
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: 1px;
 }
+
 /* 예매 전: 앰버 (아직 할 일이 남음) */
 .status-before {
-color: var(--st-before-fg);
-background: var(--st-before-bg);
+  color: var(--st-before-fg);
+  background: var(--st-before-bg);
 }
+
 /* 예매 완료: 차분한 청록 (확정, 대기 중) */
 .status-booked {
-color: var(--st-booked-fg);
-background: var(--st-booked-bg);
+  color: var(--st-booked-fg);
+  background: var(--st-booked-bg);
 }
+
 /* 관람 완료: 세이지 그린 (끝남) */
 .status-done {
-color: var(--st-done-fg);
-background: var(--st-done-bg);
+  color: var(--st-done-fg);
+  background: var(--st-done-bg);
 }
+
 /* 예매 전은 속이 빈 점으로 한 번 더 구분 */
 .status-before::before {
-background: transparent;
-border: 1.5px solid currentColor;
+  background: transparent;
+  border: 1.5px solid currentColor;
 }
+
 /* 눌러서 상태를 바꿀 수 있는 칩 */
 .status.clickable {
-border: 1px solid transparent;
-font-family: inherit;
-line-height: inherit;
-cursor: pointer;
+  border: 1px solid transparent;
+  font-family: inherit;
+  line-height: inherit;
+  cursor: pointer;
 }
+
 .status.clickable::after {
-content: " ›";
+  content: " ›";
 }
+
 .status.clickable:hover {
-border-color: currentColor;
-opacity: 1;
+  border-color: currentColor;
+  opacity: 1;
 }
+
 /* D-day */
 .dday {
-color: var(--accent);
-font-size: 11px;
-font-weight: bold;
-white-space: nowrap;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
 }
+
 .dday.today {
-padding: 2px 7px;
-border-radius: 10px;
-background: var(--green);
-color: var(--on-accent);
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--green);
+  color: var(--on-accent);
 }
+
 /* 상태 불일치 힌트 */
 .gig-hint {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 8px;
-margin-top: 9px;
-padding: 7px 10px;
-border: 1px dashed var(--green-dark);
-border-radius: 6px;
-color: var(--muted);
-font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+  padding: 7px 10px;
+  border: 1px dashed var(--green-dark);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
 }
+
 .gig-hint span {
-min-width: 0;
-overflow-wrap: anywhere;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
+
 .gig-hint .small-btn {
-flex-shrink: 0;
+  flex-shrink: 0;
 }
+
 /* 밴드 입력 도우미 */
 .help {
-color: var(--muted);
-font-size: 12px;
+  color: var(--muted);
+  font-size: 12px;
 }
+
 .suggest {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
+
 .suggest:empty {
-display: none;
+  display: none;
 }
+
 .suggest-chip {
-padding: 5px 10px;
-background: transparent;
-border: 1px solid var(--green-dark);
-border-radius: 20px;
-color: var(--green);
-font-size: 12px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid var(--green-dark);
+  border-radius: 20px;
+  color: var(--green);
+  font-size: 12px;
 }
+
 /* 여러 팀 공연의 라인업 */
 .gig-lineup {
-margin-top: 3px;
-color: var(--muted);
-font-size: 12px;
-overflow-wrap: anywhere;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
+
 /* 테마 설정 */
 .theme-box {
-padding: 12px;
-background: var(--panel);
-border: 1px solid var(--line);
-border-radius: 10px;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
 }
+
 .theme-list {
-display: grid;
-grid-template-columns: repeat(6, minmax(0, 1fr));
-gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
 }
+
 .theme-option {
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 4px;
-min-width: 0;
-padding: 6px 3px;
-background: transparent;
-border: 1px solid var(--line);
-border-radius: 10px;
-color: var(--muted);
-font-size: 12px;
-font-weight: normal;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px 4px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: normal;
 }
+
 .theme-option[aria-checked="true"] {
-border-color: var(--green);
-color: var(--text);
-font-weight: bold;
-box-shadow: 0 0 0 1px var(--green);
+  border-color: var(--green);
+  color: var(--text);
+  font-weight: bold;
+  box-shadow: 0 0 0 1px var(--green);
 }
+
 .theme-swatch {
-position: relative;
-width: 28px;
-height: 28px;
-border: 1px solid rgba(128, 128, 128, 0.45);
-border-radius: 50%;
-overflow: hidden;
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+  border-radius: 50%;
+  overflow: hidden;
 }
+
 .theme-swatch i {
-position: absolute;
-right: 0;
-bottom: 0;
-width: 55%;
-height: 55%;
-border-radius: 50% 0 0 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 55%;
+  height: 55%;
+  border-radius: 50% 0 0 0;
 }
+
 /* 밴드 순위 더보기/접기 */
 .more-btn {
-display: block;
-width: 100%;
-padding: 11px;
-background: transparent;
-border: none;
-border-top: 1px solid var(--line);
-border-radius: 0;
-color: var(--green);
-font-size: 12px;
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--green);
+  font-size: 12px;
 }
+
 .more-btn[hidden] {
-display: none;
+  display: none;
 }
+
 .empty {
-padding: 25px 8px;
-color: var(--muted);
-text-align: center;
-font-size: 12px;
+  padding: 25px 8px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 12px;
 }
+
 .table-wrap {
-width: 100%;
-overflow: hidden;
-border: 1px solid var(--line);
-border-radius: 9px;
-background: var(--panel);
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
 }
+
 table {
-width: 100%;
-border-collapse: collapse;
-table-layout: fixed;
-font-size: 12px;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
 }
+
 th {
-padding: 12px 5px;
-color: var(--th-text);
-background: var(--panel-2);
-border-bottom: 1px solid var(--line);
-font-weight: bold;
+  padding: 12px 5px;
+  color: var(--th-text);
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--line);
+  font-weight: bold;
 }
+
 td {
-padding: 13px 6px;
-text-align: center;
-border-bottom: 1px solid var(--row-line);
-overflow-wrap: anywhere;
+  padding: 13px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--row-line);
+  overflow-wrap: anywhere;
 }
+
 tbody tr:last-child td { border-bottom: none; }
+
 .month-row {
-display: flex;
-align-items: center;
-gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
 .bar-bg {
-width: 100%;
-height: 6px;
-background: var(--bar-bg);
-border-radius: 10px;
-overflow: hidden;
+  width: 100%;
+  height: 6px;
+  background: var(--bar-bg);
+  border-radius: 10px;
+  overflow: hidden;
 }
+
 .bar {
-height: 100%;
-background: var(--bar);
-border-radius: 10px;
+  height: 100%;
+  background: var(--bar);
+  border-radius: 10px;
 }
+
 .month-price {
-white-space: nowrap;
-color: var(--accent);
+  white-space: nowrap;
+  color: var(--accent);
 }
+
 .stats-table th { font-size: 12px; }
 .stats-table td { padding: 17px 5px; }
+
 .stat-number {
-font-size: 21px;
-font-weight: bold;
+  font-size: 21px;
+  font-weight: bold;
 }
+
 /* 알림 (toast) */
 .toast {
-position: fixed;
-left: 50%;
-bottom: 24px;
-transform: translate(-50%, 20px);
-max-width: calc(100% - 32px);
-padding: 11px 16px;
-border: 1px solid var(--green-dark);
-border-radius: 8px;
-background: var(--panel-2);
-color: var(--text);
-font-size: 13px;
-opacity: 0;
-pointer-events: none;
-transition: opacity 0.2s, transform 0.2s;
-z-index: 20;
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  max-width: calc(100% - 32px);
+  padding: 11px 16px;
+  border: 1px solid var(--green-dark);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 20;
 }
+
 .toast.show {
-opacity: 1;
-transform: translate(-50%, 0);
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
+
 .toast.error {
-border-color: var(--danger-line);
-color: var(--danger);
+  border-color: var(--danger-line);
+  color: var(--danger);
 }
+
 /* 확인 대화상자 */
 dialog {
-width: calc(100% - 40px);
-max-width: 340px;
-padding: 20px;
-border: 1px solid var(--line);
-border-radius: 10px;
-background: var(--panel);
-color: var(--text);
+  width: calc(100% - 40px);
+  max-width: 340px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
 }
+
 dialog::backdrop {
-background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.6);
 }
+
 dialog p {
-margin: 0 0 18px;
-font-size: 14px;
-overflow-wrap: anywhere;
+  margin: 0 0 18px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
+
 .dialog-buttons {
-display: flex;
-gap: 8px;
+  display: flex;
+  gap: 8px;
 }
+
 .dialog-buttons button { flex: 1; }
+
 .danger-btn {
-background: var(--danger-strong);
-border-color: var(--danger-line);
-color: #fff;
+  background: var(--danger-strong);
+  border-color: var(--danger-line);
+  color: #fff;
 }
+
 @media (max-width: 600px) {
-body { padding: 20px 12px 35px; }
-.section-title {
-font-size: 14px;
-margin-top: 29px;
-}
-.form-box { padding: 15px; }
-.form-grid {
-grid-template-columns: minmax(0, 1fr);
-gap: 13px;
-}
-input, select { height: 44px; }
-.gig-card { padding: 12px 11px; }
-.gig-artist { font-size: 13px; }
-.gig-info {
-font-size: 11px;
-gap: 5px;
-}
-.gig-price { font-size: 12px; }
-.gig-top-right { gap: 5px; }
-.small-btn {
-padding: 5px 7px;
-font-size: 11px;
-}
-.section-heading { gap: 6px; }
-.section-heading .section-title { font-size: 13px; }
-.heading-actions { gap: 4px; }
-.export-btn {
-padding: 7px 9px;
-font-size: 11px;
-}
-.monthly-table th,
-.monthly-table td,
-.artist-table th,
-.artist-table td {
-padding: 11px 3px;
-font-size: 11px;
-}
-.stats-table th { font-size: 12px; }
-.stat-number { font-size: 19px; }
+  body { padding: 20px 12px 35px; }
+
+  .section-title {
+    font-size: 14px;
+    margin-top: 29px;
+  }
+
+  .form-box { padding: 15px; }
+
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 13px;
+  }
+
+  input, select { height: 44px; }
+
+  .gig-card { padding: 12px 11px; }
+
+  .gig-artist { font-size: 13px; }
+
+  .gig-info {
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .gig-price { font-size: 12px; }
+
+  .gig-top-right { gap: 5px; }
+
+  .small-btn {
+    padding: 5px 7px;
+    font-size: 11px;
+  }
+
+  .section-heading { gap: 6px; }
+
+  .section-heading .section-title { font-size: 13px; }
+
+  .heading-actions { gap: 4px; }
+
+  .export-btn {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+
+  .monthly-table th,
+  .monthly-table td,
+  .artist-table th,
+  .artist-table td {
+    padding: 11px 3px;
+    font-size: 11px;
+  }
+
+  .stats-table th { font-size: 12px; }
+  .stat-number { font-size: 19px; }
 }
 </style>
 </head>
+
 <body>
 <div class="container">
+
 <div class="section-title" id="formTitle">새 공연 기록</div>
+
 <div class="form-box">
 <form id="gigForm" novalidate>
-<div class="form-grid">
-<div class="field">
-<label for="artist">밴드</label>
-<input id="artist" placeholder="밴드명" maxlength="300" autocomplete="off" aria-describedby="artistHelp" required>
-<div id="artistSuggest" class="suggest" aria-label="밴드 추천"></div>
-<small id="artistHelp" class="help">여러 팀이 나오는 공연은 쉼표(,)로 구분해 주세요.</small>
-</div>
-<div class="field">
-<label for="date">날짜</label>
-<input id="date" type="date" required>
-</div>
-<div class="field">
-<label for="gigName">공연명</label>
-<input id="gigName" placeholder="공연명" maxlength="150" required>
-</div>
-<div class="field">
-<label for="venue">장소</label>
-<input id="venue" list="venueOptions" placeholder="공연장 이름" maxlength="100" required>
-<datalist id="venueOptions"></datalist>
-</div>
-<div class="field">
-<label for="price">가격 (원)</label>
-<input id="price" type="text" inputmode="numeric" autocomplete="off" placeholder="티켓 가격" maxlength="15" required>
-</div>
-<div class="field">
-<label for="status">관람 상태</label>
-<select id="status">
-<option value="예매 전">예매 전</option>
-<option value="예매 완료">예매 완료</option>
-<option value="관람 완료">관람 완료</option>
-</select>
-</div>
-</div>
-<div class="form-buttons">
-<button type="submit" id="submitBtn">공연 추가하기</button>
-<button type="button" id="cancelBtn" class="cancel-btn" hidden>취소</button>
-</div>
+
+  <div class="form-grid">
+
+    <div class="field">
+      <label for="artist">밴드</label>
+      <input id="artist" placeholder="밴드명" maxlength="300" autocomplete="off" aria-describedby="artistHelp" required>
+      <div id="artistSuggest" class="suggest" aria-label="밴드 추천"></div>
+      <small id="artistHelp" class="help">여러 팀이 나오는 공연은 쉼표(,)로 구분해 주세요.</small>
+    </div>
+
+    <div class="field">
+      <label for="date">날짜</label>
+      <input id="date" type="date" required>
+    </div>
+
+    <div class="field">
+      <label for="gigName">공연명</label>
+      <input id="gigName" placeholder="공연명" maxlength="150" required>
+    </div>
+
+    <div class="field">
+      <label for="venue">장소</label>
+      <input id="venue" list="venueOptions" placeholder="공연장 이름" maxlength="100" required>
+      <datalist id="venueOptions"></datalist>
+    </div>
+
+    <div class="field">
+      <label for="price">가격 (원)</label>
+      <input id="price" type="text" inputmode="numeric" autocomplete="off" placeholder="티켓 가격" maxlength="15" required>
+    </div>
+
+    <div class="field">
+      <label for="status">관람 상태</label>
+      <select id="status">
+        <option value="예매 전">예매 전</option>
+        <option value="예매 완료">예매 완료</option>
+        <option value="관람 완료">관람 완료</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="form-buttons">
+    <button type="submit" id="submitBtn">공연 추가하기</button>
+    <button type="button" id="cancelBtn" class="cancel-btn" hidden>취소</button>
+  </div>
+
 </form>
 </div>
+
 <div class="section-heading">
-<div class="section-title">공연 및 행사 기록</div>
-<div class="heading-actions">
-<button type="button" class="export-btn" id="csvBtn">CSV ↓</button>
-<button type="button" class="export-btn" id="jsonBtn">백업 ↓</button>
-<button type="button" class="export-btn" id="importBtn">복원 ↑</button>
-</div>
+  <div class="section-title">공연 및 행사 기록</div>
+  <div class="heading-actions">
+    <button type="button" class="export-btn" id="csvBtn">CSV ↓</button>
+    <button type="button" class="export-btn" id="jsonBtn">백업 ↓</button>
+    <button type="button" class="export-btn" id="importBtn">복원 ↑</button>
+  </div>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" class="visually-hidden" tabindex="-1" aria-label="백업 파일 선택">
+
 <div class="table-wrap">
-<div id="gigList" class="gig-list"></div>
+  <div id="gigList" class="gig-list"></div>
 </div>
+
 <div class="section-title">월별 지출</div>
+
 <div class="table-wrap">
 <table class="monthly-table">
-<thead>
-<tr>
-<th scope="col" style="width:22%">월</th>
-<th scope="col" style="width:17%">관람 횟수</th>
-<th scope="col">지출 비율</th>
-<th scope="col" style="width:27%">지출 금액</th>
-</tr>
-</thead>
-<tbody id="monthlyStats"></tbody>
+  <thead>
+    <tr>
+      <th scope="col" style="width:22%">월</th>
+      <th scope="col" style="width:17%">관람 횟수</th>
+      <th scope="col">지출 비율</th>
+      <th scope="col" style="width:27%">지출 금액</th>
+    </tr>
+  </thead>
+  <tbody id="monthlyStats"></tbody>
 </table>
 <button type="button" class="more-btn" id="monthlyToggle" aria-expanded="false" aria-controls="monthlyStats" hidden></button>
 </div>
+
 <div class="section-title">밴드별 관람 횟수</div>
+
 <div class="table-wrap">
 <table class="artist-table">
-<thead>
-<tr>
-<th scope="col" style="width:18%">순위</th>
-<th scope="col">밴드</th>
-<th scope="col" style="width:28%">관람 횟수</th>
-</tr>
-</thead>
-<tbody id="artistStats"></tbody>
+  <thead>
+    <tr>
+      <th scope="col" style="width:18%">순위</th>
+      <th scope="col">밴드</th>
+      <th scope="col" style="width:28%">관람 횟수</th>
+    </tr>
+  </thead>
+  <tbody id="artistStats"></tbody>
 </table>
 <button type="button" class="more-btn" id="artistToggle" aria-expanded="false" aria-controls="artistStats" hidden></button>
 </div>
+
 <div class="section-title">전체 통계</div>
+
 <div class="table-wrap">
 <table class="stats-table">
-<thead>
-<tr>
-<th scope="col">관람 공연</th>
-<th scope="col">총 지출</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><span class="stat-number" id="totalGigs">0</span></td>
-<td><span class="stat-number" id="totalSpent">₩0</span></td>
-</tr>
-</tbody>
+  <thead>
+    <tr>
+      <th scope="col">관람 공연</th>
+      <th scope="col">총 지출</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="stat-number" id="totalGigs">0</span></td>
+      <td><span class="stat-number" id="totalSpent">₩0</span></td>
+    </tr>
+  </tbody>
 </table>
 </div>
+
 <div class="section-title">테마 설정</div>
+
 <div class="theme-box">
-<div class="theme-list" id="themeList" role="radiogroup" aria-label="테마 선택"></div>
+  <div class="theme-list" id="themeList" role="radiogroup" aria-label="테마 선택"></div>
 </div>
+
 </div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <dialog id="confirmDialog" aria-labelledby="confirmMessage">
-<p id="confirmMessage"></p>
-<div class="dialog-buttons">
-<button type="button" class="cancel-btn" id="confirmNo">취소</button>
-<button type="button" class="danger-btn" id="confirmYes">확인</button>
-</div>
+  <p id="confirmMessage"></p>
+  <div class="dialog-buttons">
+    <button type="button" class="cancel-btn" id="confirmNo">취소</button>
+    <button type="button" class="danger-btn" id="confirmYes">확인</button>
+  </div>
 </dialog>
+
 <script>
 "use strict";
+
 const STORAGE_KEY = "myGigs";
 const STATUSES = ["예매 전", "예매 완료", "관람 완료"];
 const DEFAULT_STATUS = "관람 완료";
 const MONTHS_SHOWN = 3;
+
 const STATUS_CLASS = {
-"예매 전": "status-before",
-"예매 완료": "status-booked",
-"관람 완료": "status-done"
+  "예매 전": "status-before",
+  "예매 완료": "status-booked",
+  "관람 완료": "status-done"
 };
+
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
 /* 상태 칩을 누르면 다음 단계로 (관람 완료는 마지막 단계) */
 const NEXT_STATUS = {
-"예매 전": "예매 완료",
-"예매 완료": "관람 완료"
+  "예매 전": "예매 완료",
+  "예매 완료": "관람 완료"
 };
+
 const $ = id => document.getElementById(id);
+
 const els = {
-form: $("gigForm"),
-formTitle: $("formTitle"),
-artist: $("artist"),
-date: $("date"),
-gigName: $("gigName"),
-venue: $("venue"),
-price: $("price"),
-status: $("status"),
-submitBtn: $("submitBtn"),
-cancelBtn: $("cancelBtn"),
-list: $("gigList"),
-artistSuggest: $("artistSuggest"),
-venueList: $("venueOptions"),
-monthly: $("monthlyStats"),
-monthlyToggle: $("monthlyToggle"),
-artists: $("artistStats"),
-artistToggle: $("artistToggle"),
-totalGigs: $("totalGigs"),
-totalSpent: $("totalSpent"),
-importFile: $("importFile"),
-toast: $("toast"),
-dialog: $("confirmDialog"),
-dialogMsg: $("confirmMessage"),
-dialogYes: $("confirmYes"),
-dialogNo: $("confirmNo")
+  form: $("gigForm"),
+  formTitle: $("formTitle"),
+  artist: $("artist"),
+  date: $("date"),
+  gigName: $("gigName"),
+  venue: $("venue"),
+  price: $("price"),
+  status: $("status"),
+  submitBtn: $("submitBtn"),
+  cancelBtn: $("cancelBtn"),
+  list: $("gigList"),
+  artistSuggest: $("artistSuggest"),
+  venueList: $("venueOptions"),
+  monthly: $("monthlyStats"),
+  monthlyToggle: $("monthlyToggle"),
+  artists: $("artistStats"),
+  artistToggle: $("artistToggle"),
+  totalGigs: $("totalGigs"),
+  totalSpent: $("totalSpent"),
+  importFile: $("importFile"),
+  toast: $("toast"),
+  dialog: $("confirmDialog"),
+  dialogMsg: $("confirmMessage"),
+  dialogYes: $("confirmYes"),
+  dialogNo: $("confirmNo")
 };
+
 /* ---------- 유틸 ---------- */
+
 const won = number =>
-"₩" + Number(number).toLocaleString("ko-KR");
+  "₩" + Number(number).toLocaleString("ko-KR");
+
 function escapeHTML(value) {
-return String(value).replace(/[&<>"']/g, char => ({
-"&": "&",
-"<": "<",
-">": ">",
-'"': """,
-"'": "'"
-})[char]);
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
 }
+
 function generateId() {
-if (window.crypto && typeof crypto.randomUUID === "function") {
-return crypto.randomUUID();
+  if (window.crypto && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
 }
-return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-}
+
 /* 실제로 존재하는 날짜인지 확인 (YYYY-MM-DD) */
 function isValidDate(dateString) {
-if (typeof dateString !== "string") return false;
-if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return false;
-const [year, month, day] = dateString.split("-").map(Number);
-const date = new Date(year, month - 1, day);
-return (
-date.getFullYear() === year &&
-date.getMonth() === month - 1 &&
-date.getDate() === day
-);
+  if (typeof dateString !== "string") return false;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return false;
+
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return (
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day
+  );
 }
+
 function formatDateWithWeekday(dateString) {
-const [year, month, day] = dateString.split("-").map(Number);
-const date = new Date(year, month - 1, day);
-return ⁠${escapeHTML(dateString)} <span class="weekday">(${WEEKDAYS[date.getDay()]})</span>⁠;
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  return `${escapeHTML(dateString)} <span class="weekday">(${WEEKDAYS[date.getDay()]})</span>`;
 }
+
 function weekdayText(dateString) {
-const [year, month, day] = dateString.split("-").map(Number);
-return WEEKDAYS[new Date(year, month - 1, day).getDay()] + "요일";
+  const [year, month, day] = dateString.split("-").map(Number);
+  return WEEKDAYS[new Date(year, month - 1, day).getDay()] + "요일";
 }
+
 /* 오늘 날짜 (로컬 시간대 기준, YYYY-MM-DD) */
 function todayISO() {
-const d = new Date();
-const pad = n => String(n).padStart(2, "0");
-return ⁠${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}⁠;
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+
 /* 오늘부터 공연일까지 남은 일수. 지난 공연은 음수 */
 function daysUntil(dateString) {
-const [year, month, day] = dateString.split("-").map(Number);
-const target = new Date(year, month - 1, day);
-const now = new Date();
-const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-return Math.round((target - today) / 86400000);
+  const [year, month, day] = dateString.split("-").map(Number);
+  const target = new Date(year, month - 1, day);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  return Math.round((target - today) / 86400000);
 }
+
 /* 숫자에 천 단위 콤마 (입력창 표시용) */
 function formatPrice(value) {
-const digits = String(value).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
-return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const digits = String(value).replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
 /* 밴드 입력값을 이름 목록으로 (쉼표 구분, 공백/중복 정리) */
 function parseArtists(value) {
-const list = Array.isArray(value)
-? value
-: String(value ?? "").split(/[,，、\n]/);
-const seen = new Set();
-const result = [];
-list.forEach(item => {
-const name = String(item ?? "").trim().replace(/\s+/g, " ");
-const key = name.toLowerCase();
-if (!name || seen.has(key)) return;
-seen.add(key);
-result.push(name);
-});
-return result;
+  const list = Array.isArray(value)
+    ? value
+    : String(value ?? "").split(/[,，、\n]/);
+
+  const seen = new Set();
+  const result = [];
+
+  list.forEach(item => {
+    const name = String(item ?? "").trim().replace(/\s+/g, " ");
+    const key = name.toLowerCase();
+
+    if (!name || seen.has(key)) return;
+
+    seen.add(key);
+    result.push(name);
+  });
+
+  return result;
 }
+
 /* 목록 카드의 제목: 공연명 (비어 있으면 밴드 이름) */
 function gigTitle(gig) {
-return gig.name || artistShort(gig.artists);
+  return gig.name || artistShort(gig.artists);
 }
+
 /* 목록 표시용: 여러 팀이면 "A 외 N팀" */
 function artistShort(artists) {
-if (artists.length > 1) return ⁠${artists[0]} 외 ${artists.length - 1}팀⁠;
-return artists[0] || "";
+  if (artists.length > 1) return `${artists[0]} 외 ${artists.length - 1}팀`;
+  return artists[0] || "";
 }
+
 /* ---------- 알림 ---------- */
+
 let toastTimer = null;
+
 function showToast(message, isError = false) {
-els.toast.textContent = message;
-els.toast.classList.toggle("error", isError);
-els.toast.classList.add("show");
-clearTimeout(toastTimer);
-toastTimer = setTimeout(() => {
-els.toast.classList.remove("show");
-}, 3000);
+  els.toast.textContent = message;
+  els.toast.classList.toggle("error", isError);
+  els.toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    els.toast.classList.remove("show");
+  }, 3000);
 }
+
 /* confirm() 대체: Promise<boolean> 반환 */
 function askConfirm(message, yesLabel = "확인") {
-if (typeof els.dialog.showModal !== "function") {
-return Promise.resolve(window.confirm(message));
+  if (typeof els.dialog.showModal !== "function") {
+    return Promise.resolve(window.confirm(message));
+  }
+
+  return new Promise(resolve => {
+    els.dialogMsg.textContent = message;
+    els.dialogYes.textContent = yesLabel;
+
+    const finish = result => {
+      els.dialogYes.removeEventListener("click", onYes);
+      els.dialogNo.removeEventListener("click", onNo);
+      els.dialog.removeEventListener("cancel", onNo);
+      if (els.dialog.open) els.dialog.close();
+      resolve(result);
+    };
+
+    const onYes = () => finish(true);
+    const onNo = e => {
+      if (e) e.preventDefault();
+      finish(false);
+    };
+
+    els.dialogYes.addEventListener("click", onYes);
+    els.dialogNo.addEventListener("click", onNo);
+    els.dialog.addEventListener("cancel", onNo);
+
+    els.dialog.showModal();
+    els.dialogNo.focus();
+  });
 }
-return new Promise(resolve => {
-els.dialogMsg.textContent = message;
-els.dialogYes.textContent = yesLabel;
-const finish = result => {
-els.dialogYes.removeEventListener("click", onYes);
-els.dialogNo.removeEventListener("click", onNo);
-els.dialog.removeEventListener("cancel", onNo);
-if (els.dialog.open) els.dialog.close();
-resolve(result);
-};
-const onYes = () => finish(true);
-const onNo = e => {
-if (e) e.preventDefault();
-finish(false);
-};
-els.dialogYes.addEventListener("click", onYes);
-els.dialogNo.addEventListener("click", onNo);
-els.dialog.addEventListener("cancel", onNo);
-els.dialog.showModal();
-els.dialogNo.focus();
-});
-}
+
 /* ---------- 데이터 ---------- */
+
 /* 저장된 데이터가 어떤 형태든 안전한 형태로 정리. 쓸 수 없으면 null */
 function normalizeGig(raw) {
-if (!raw || typeof raw !== "object") return null;
-/* 예전 기록은 artist 문자열만 있으므로, 쉼표가 있으면 여러 팀으로 나눔 */
-const artists = parseArtists(
-Array.isArray(raw.artists) && raw.artists.length ? raw.artists : raw.artist
-);
-const date = String(raw.date ?? "").trim();
-if (artists.length === 0 || !isValidDate(date)) return null;
-const price = Number(raw.price);
-return {
-id: raw.id !== undefined && raw.id !== null && String(raw.id) !== ""
-? String(raw.id)
-: generateId(),
-artist: artists.join(", "),
-artists,
-date,
-name: String(raw.name ?? "").trim(),
-venue: String(raw.venue ?? "").trim(),
-price: Number.isSafeInteger(price) && price >= 0 ? price : 0,
-status: STATUSES.includes(raw.status) ? raw.status : DEFAULT_STATUS
-};
+  if (!raw || typeof raw !== "object") return null;
+
+  /* 예전 기록은 artist 문자열만 있으므로, 쉼표가 있으면 여러 팀으로 나눔 */
+  const artists = parseArtists(
+    Array.isArray(raw.artists) && raw.artists.length ? raw.artists : raw.artist
+  );
+  const date = String(raw.date ?? "").trim();
+
+  if (artists.length === 0 || !isValidDate(date)) return null;
+
+  const price = Number(raw.price);
+
+  return {
+    id: raw.id !== undefined && raw.id !== null && String(raw.id) !== ""
+      ? String(raw.id)
+      : generateId(),
+    artist: artists.join(", "),
+    artists,
+    date,
+    name: String(raw.name ?? "").trim(),
+    venue: String(raw.venue ?? "").trim(),
+    price: Number.isSafeInteger(price) && price >= 0 ? price : 0,
+    status: STATUSES.includes(raw.status) ? raw.status : DEFAULT_STATUS
+  };
 }
+
 function normalizeList(rawList) {
-if (!Array.isArray(rawList)) return [];
-const seen = new Set();
-const result = [];
-rawList.forEach(raw => {
-const gig = normalizeGig(raw);
-if (!gig) return;
-/* id 중복 방지 */
-while (seen.has(gig.id)) gig.id = generateId();
-seen.add(gig.id);
-result.push(gig);
-});
-return result;
+  if (!Array.isArray(rawList)) return [];
+
+  const seen = new Set();
+  const result = [];
+
+  rawList.forEach(raw => {
+    const gig = normalizeGig(raw);
+    if (!gig) return;
+
+    /* id 중복 방지 */
+    while (seen.has(gig.id)) gig.id = generateId();
+    seen.add(gig.id);
+
+    result.push(gig);
+  });
+
+  return result;
 }
+
 let gigs = [];
+
 try {
-gigs = normalizeList(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+  gigs = normalizeList(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
 } catch (error) {
-gigs = [];
+  gigs = [];
 }
+
 let editingId = null;
 let formSnapshot = "";
+
 function save() {
-try {
-localStorage.setItem(STORAGE_KEY, JSON.stringify(gigs));
-return true;
-} catch (error) {
-showToast("저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.", true);
-return false;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(gigs));
+    return true;
+  } catch (error) {
+    showToast("저장에 실패했습니다. 브라우저 저장 공간을 확인해 주세요.", true);
+    return false;
+  }
 }
-}
+
 /* ---------- 폼 ---------- */
+
 function getFormValues() {
-return {
-artist: els.artist.value.trim(),
-date: els.date.value,
-name: els.gigName.value.trim(),
-venue: els.venue.value.trim(),
-priceValue: els.price.value.replace(/,/g, ""),
-status: els.status.value
-};
+  return {
+    artist: els.artist.value.trim(),
+    date: els.date.value,
+    name: els.gigName.value.trim(),
+    venue: els.venue.value.trim(),
+    priceValue: els.price.value.replace(/,/g, ""),
+    status: els.status.value
+  };
 }
+
 function takeSnapshot() {
-formSnapshot = JSON.stringify(getFormValues());
+  formSnapshot = JSON.stringify(getFormValues());
 }
+
 function isFormDirty() {
-return JSON.stringify(getFormValues()) !== formSnapshot;
+  return JSON.stringify(getFormValues()) !== formSnapshot;
 }
+
 /* 작성/수정 중인 내용이 있으면 버려도 되는지 확인 */
 async function confirmDiscardIfDirty() {
-if (!isFormDirty()) return true;
-return askConfirm("작성 중인 내용이 사라집니다. 계속할까요?", "계속");
+  if (!isFormDirty()) return true;
+  return askConfirm("작성 중인 내용이 사라집니다. 계속할까요?", "계속");
 }
+
 /* 폼을 새 기록 상태로 되돌림 (날짜는 오늘로) */
 function clearForm() {
-els.form.reset();
-els.date.value = todayISO();
-editingId = null;
-els.formTitle.textContent = "새 공연 기록";
-els.submitBtn.textContent = "공연 추가하기";
-els.cancelBtn.hidden = true;
-takeSnapshot();
-renderArtistSuggest();
+  els.form.reset();
+  els.date.value = todayISO();
+  editingId = null;
+  els.formTitle.textContent = "새 공연 기록";
+  els.submitBtn.textContent = "공연 추가하기";
+  els.cancelBtn.hidden = true;
+  takeSnapshot();
+  renderArtistSuggest();
 }
+
 function resetForm() {
-clearForm();
-renderList();
+  clearForm();
+  renderList();
 }
+
 async function cancelEdit() {
-if (!(await confirmDiscardIfDirty())) return;
-resetForm();
+  if (!(await confirmDiscardIfDirty())) return;
+  resetForm();
 }
+
 async function editGig(id) {
-const gig = gigs.find(g => g.id === id);
-if (!gig) return;
-if (editingId === id) return;
-if (!(await confirmDiscardIfDirty())) return;
-editingId = id;
-els.artist.value = gig.artists.join(", ");
-els.date.value = gig.date;
-els.gigName.value = gig.name;
-els.venue.value = gig.venue;
-els.price.value = formatPrice(gig.price);
-els.status.value = gig.status;
-els.formTitle.textContent = "공연 기록 수정";
-els.submitBtn.textContent = "수정 내용 저장";
-els.cancelBtn.hidden = false;
-takeSnapshot();
-renderList();
-renderArtistSuggest();
-els.formTitle.scrollIntoView({ behavior: "smooth" });
-els.artist.focus({ preventScroll: true });
+  const gig = gigs.find(g => g.id === id);
+  if (!gig) return;
+  if (editingId === id) return;
+
+  if (!(await confirmDiscardIfDirty())) return;
+
+  editingId = id;
+
+  els.artist.value = gig.artists.join(", ");
+  els.date.value = gig.date;
+  els.gigName.value = gig.name;
+  els.venue.value = gig.venue;
+  els.price.value = formatPrice(gig.price);
+  els.status.value = gig.status;
+
+  els.formTitle.textContent = "공연 기록 수정";
+  els.submitBtn.textContent = "수정 내용 저장";
+  els.cancelBtn.hidden = false;
+
+  takeSnapshot();
+  renderList();
+  renderArtistSuggest();
+
+  els.formTitle.scrollIntoView({ behavior: "smooth" });
+  els.artist.focus({ preventScroll: true });
 }
+
 async function deleteGig(id) {
-const gig = gigs.find(g => g.id === id);
-if (!gig) return;
-const ok = await askConfirm(
-⁠"${gigTitle(gig)}" 공연 기록을 삭제할까요?⁠,
-"삭제"
-);
-if (!ok) return;
-const backup = gigs;
-gigs = gigs.filter(g => g.id !== id);
-if (!save()) {
-gigs = backup;
-return;
+  const gig = gigs.find(g => g.id === id);
+  if (!gig) return;
+
+  const ok = await askConfirm(
+    `"${gigTitle(gig)}" 공연 기록을 삭제할까요?`,
+    "삭제"
+  );
+  if (!ok) return;
+
+  const backup = gigs;
+  gigs = gigs.filter(g => g.id !== id);
+
+  if (!save()) {
+    gigs = backup;
+    return;
+  }
+
+  if (editingId === id) clearForm();
+
+  render();
+  showToast("공연 기록을 삭제했습니다.");
 }
-if (editingId === id) clearForm();
-render();
-showToast("공연 기록을 삭제했습니다.");
-}
+
 els.form.addEventListener("submit", function(e) {
-e.preventDefault();
-const v = getFormValues();
-const price = Number(v.priceValue);
-const artists = parseArtists(v.artist);
-if (artists.length === 0 || !v.name || !v.venue) {
-showToast("밴드, 공연명, 장소를 모두 입력해 주세요.", true);
-return;
-}
-if (!isValidDate(v.date)) {
-showToast("날짜를 올바르게 입력해 주세요.", true);
-els.date.focus();
-return;
-}
-if (v.priceValue === "" || !Number.isSafeInteger(price) || price < 0) {
-showToast("가격은 0 이상의 정수로 입력해 주세요.", true);
-els.price.focus();
-return;
-}
-if (!STATUSES.includes(v.status)) {
-showToast("관람 상태를 확인해 주세요.", true);
-return;
-}
-const backup = gigs.map(g => ({ ...g }));
-const isEdit = editingId !== null;
-if (isEdit) {
-const gig = gigs.find(g => g.id === editingId);
-if (!gig) {
-resetForm();
-return;
-}
-gig.name = v.name;
-gig.artist = artists.join(", ");
-gig.artists = artists;
-gig.date = v.date;
-gig.venue = v.venue;
-gig.price = price;
-gig.status = v.status;
-} else {
-gigs.push({
-id: generateId(),
-name: v.name,
-artist: artists.join(", "),
-artists,
-date: v.date,
-venue: v.venue,
-price,
-status: v.status
+  e.preventDefault();
+
+  const v = getFormValues();
+  const price = Number(v.priceValue);
+  const artists = parseArtists(v.artist);
+
+  if (artists.length === 0 || !v.name || !v.venue) {
+    showToast("밴드, 공연명, 장소를 모두 입력해 주세요.", true);
+    return;
+  }
+
+  if (!isValidDate(v.date)) {
+    showToast("날짜를 올바르게 입력해 주세요.", true);
+    els.date.focus();
+    return;
+  }
+
+  if (v.priceValue === "" || !Number.isSafeInteger(price) || price < 0) {
+    showToast("가격은 0 이상의 정수로 입력해 주세요.", true);
+    els.price.focus();
+    return;
+  }
+
+  if (!STATUSES.includes(v.status)) {
+    showToast("관람 상태를 확인해 주세요.", true);
+    return;
+  }
+
+  const backup = gigs.map(g => ({ ...g }));
+  const isEdit = editingId !== null;
+
+  if (isEdit) {
+    const gig = gigs.find(g => g.id === editingId);
+    if (!gig) {
+      resetForm();
+      return;
+    }
+
+    gig.name = v.name;
+    gig.artist = artists.join(", ");
+    gig.artists = artists;
+    gig.date = v.date;
+    gig.venue = v.venue;
+    gig.price = price;
+    gig.status = v.status;
+  } else {
+    gigs.push({
+      id: generateId(),
+      name: v.name,
+      artist: artists.join(", "),
+      artists,
+      date: v.date,
+      venue: v.venue,
+      price,
+      status: v.status
+    });
+  }
+
+  if (!save()) {
+    gigs = backup;
+    return;
+  }
+
+  clearForm();
+
+  render();
+  showToast(isEdit ? "수정 내용을 저장했습니다." : "공연을 추가했습니다.");
 });
-}
-if (!save()) {
-gigs = backup;
-return;
-}
-clearForm();
-render();
-showToast(isEdit ? "수정 내용을 저장했습니다." : "공연을 추가했습니다.");
-});
+
 els.cancelBtn.addEventListener("click", cancelEdit);
+
 /* 밴드 입력: 입력할 때마다 추천 칩 갱신 */
 els.artist.addEventListener("input", renderArtistSuggest);
+
 /* 추천 칩 클릭
-￼ replace: 입력 중이던 글자를 고른 이름으로 바꿈 (쉼표 없이 이름만)
-￼ append: 이미 완성된 이름 뒤에 ", 이름"을 이어 붙임 (이때 쉼표가 들어감) */
+   - replace: 입력 중이던 글자를 고른 이름으로 바꿈 (쉼표 없이 이름만)
+   - append: 이미 완성된 이름 뒤에 ", 이름"을 이어 붙임 (이때 쉼표가 들어감) */
 els.artistSuggest.addEventListener("click", function(e) {
-const btn = e.target.closest("button[data-name]");
-if (!btn) return;
-const value = els.artist.value;
-const name = btn.dataset.name;
-if (btn.dataset.mode === "append") {
-els.artist.value = value.trim().replace(/[,，、]\s*$/, "") + ", " + name;
-} else {
-const lastComma = Math.max(
-value.lastIndexOf(","),
-value.lastIndexOf("，"),
-value.lastIndexOf("、")
-);
-const head = value.slice(0, lastComma + 1).trim();
-els.artist.value = (head ? head + " " : "") + name;
-}
-els.artist.focus();
-renderArtistSuggest();
+  const btn = e.target.closest("button[data-name]");
+  if (!btn) return;
+
+  const value = els.artist.value;
+  const name = btn.dataset.name;
+
+  if (btn.dataset.mode === "append") {
+    els.artist.value = value.trim().replace(/[,，、]\s*$/, "") + ", " + name;
+  } else {
+    const lastComma = Math.max(
+      value.lastIndexOf(","),
+      value.lastIndexOf("，"),
+      value.lastIndexOf("、")
+    );
+    const head = value.slice(0, lastComma + 1).trim();
+
+    els.artist.value = (head ? head + " " : "") + name;
+  }
+
+  els.artist.focus();
+  renderArtistSuggest();
 });
+
 /* 가격 입력: 숫자만 받고 천 단위 콤마 표시 (커서 위치 유지) */
 els.price.addEventListener("input", function() {
-const caret = this.selectionStart ?? this.value.length;
-const digitsBefore = this.value.slice(0, caret).replace(/\D/g, "").length;
-this.value = formatPrice(this.value);
-let pos = 0;
-let seen = 0;
-while (pos < this.value.length && seen < digitsBefore) {
-if (/\d/.test(this.value[pos])) seen++;
-pos++;
-}
-this.setSelectionRange(pos, pos);
+  const caret = this.selectionStart ?? this.value.length;
+  const digitsBefore = this.value.slice(0, caret).replace(/\D/g, "").length;
+
+  this.value = formatPrice(this.value);
+
+  let pos = 0;
+  let seen = 0;
+
+  while (pos < this.value.length && seen < digitsBefore) {
+    if (/\d/.test(this.value[pos])) seen++;
+    pos++;
+  }
+
+  this.setSelectionRange(pos, pos);
 });
+
 /* 상태 변경 (칩 클릭, 힌트 버튼 공통) */
 function setStatus(id, status) {
-const gig = gigs.find(g => g.id === id);
-if (!gig || gig.status === status) return;
-const previous = gig.status;
-gig.status = status;
-if (!save()) {
-gig.status = previous;
-return;
+  const gig = gigs.find(g => g.id === id);
+  if (!gig || gig.status === status) return;
+
+  const previous = gig.status;
+  gig.status = status;
+
+  if (!save()) {
+    gig.status = previous;
+    return;
+  }
+
+  /* 같은 항목을 수정 중이면 폼의 상태 값도 맞춰서, 저장 시 덮어쓰지 않게 함 */
+  if (editingId === id) {
+    els.status.value = status;
+    const snap = JSON.parse(formSnapshot);
+    snap.status = status;
+    formSnapshot = JSON.stringify(snap);
+  }
+
+  render();
+  focusGigButton(id);
+  showToast(`${gigTitle(gig)} 상태를 '${status}'(으)로 바꿨어요.`);
 }
-/* 같은 항목을 수정 중이면 폼의 상태 값도 맞춰서, 저장 시 덮어쓰지 않게 함 */
-if (editingId === id) {
-els.status.value = status;
-const snap = JSON.parse(formSnapshot);
-snap.status = status;
-formSnapshot = JSON.stringify(snap);
-}
-render();
-focusGigButton(id);
-showToast(⁠${gigTitle(gig)} 상태를 '${status}'(으)로 바꿨어요.⁠);
-}
+
 function advanceStatus(id) {
-const gig = gigs.find(g => g.id === id);
-if (!gig) return;
-const next = NEXT_STATUS[gig.status];
-if (next) setStatus(id, next);
+  const gig = gigs.find(g => g.id === id);
+  if (!gig) return;
+
+  const next = NEXT_STATUS[gig.status];
+  if (next) setStatus(id, next);
 }
+
 /* 다시 그려진 뒤에도 키보드 포커스가 유지되도록 */
 function focusGigButton(id) {
-const safeId = window.CSS && CSS.escape ? CSS.escape(id) : id;
-const target =
-els.list.querySelector(⁠[data-action="advance"][data-id="${safeId}"]⁠) ||
-els.list.querySelector(⁠[data-action="edit"][data-id="${safeId}"]⁠);
-if (target) target.focus();
+  const safeId = window.CSS && CSS.escape ? CSS.escape(id) : id;
+  const target =
+    els.list.querySelector(`[data-action="advance"][data-id="${safeId}"]`) ||
+    els.list.querySelector(`[data-action="edit"][data-id="${safeId}"]`);
+
+  if (target) target.focus();
 }
+
 /* 직접 쓰기 전에 쉽게 고를 수 있도록 지금까지 본 밴드를 많이 본 순으로 */
 function knownArtists() {
-const map = new Map();
-gigs.forEach(gig => {
-gig.artists.forEach(name => {
-const key = name.toLowerCase();
-const entry = map.get(key) || { name, count: 0 };
-entry.count += 1;
-map.set(key, entry);
-});
-});
-return [...map.values()]
-.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "ko"))
-.map(entry => entry.name);
+  const map = new Map();
+
+  gigs.forEach(gig => {
+    gig.artists.forEach(name => {
+      const key = name.toLowerCase();
+      const entry = map.get(key) || { name, count: 0 };
+      entry.count += 1;
+      map.set(key, entry);
+    });
+  });
+
+  return [...map.values()]
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "ko"))
+    .map(entry => entry.name);
 }
+
 /* 밴드 추천 칩: 자주 본 순서로 최대 이 개수만 */
 const SUGGEST_LIMIT = 5;
+
 function renderArtistSuggest() {
-const value = els.artist.value;
-const lastComma = Math.max(
-value.lastIndexOf(","),
-value.lastIndexOf("，"),
-value.lastIndexOf("、")
-);
-const token = value.slice(lastComma + 1).trim().toLowerCase();
-const already = new Set(
-parseArtists(value.slice(0, lastComma + 1)).map(name => name.toLowerCase())
-);
-const known = knownArtists();
-/* 마지막 입력이 이미 알고 있는 밴드 이름과 똑같으면(칩으로 고른 직후 등)
-그 밴드는 그대로 두고, 나머지 밴드를 "추가" 후보로 보여 줌 */
-const complete = token !== "" && known.some(name => name.toLowerCase() === token);
-const mode = complete ? "append" : "replace";
-const matches = known
-.filter(name => {
-const key = name.toLowerCase();
-if (already.has(key) || key === token) return false;
-return complete ? true : key.includes(token);
-})
-.slice(0, SUGGEST_LIMIT);
-els.artistSuggest.innerHTML = matches
-.map(name => ⁠<button type="button" class="suggest-chip" data-mode="${mode}" data-name="${escapeHTML(name)}">${escapeHTML(name)}</button>⁠)
-.join("");
+  const value = els.artist.value;
+  const lastComma = Math.max(
+    value.lastIndexOf(","),
+    value.lastIndexOf("，"),
+    value.lastIndexOf("、")
+  );
+
+  const token = value.slice(lastComma + 1).trim().toLowerCase();
+  const already = new Set(
+    parseArtists(value.slice(0, lastComma + 1)).map(name => name.toLowerCase())
+  );
+
+  const known = knownArtists();
+
+  /* 마지막 입력이 이미 알고 있는 밴드 이름과 똑같으면(칩으로 고른 직후 등)
+     그 밴드는 그대로 두고, 나머지 밴드를 "추가" 후보로 보여 줌 */
+  const complete = token !== "" && known.some(name => name.toLowerCase() === token);
+  const mode = complete ? "append" : "replace";
+
+  const matches = known
+    .filter(name => {
+      const key = name.toLowerCase();
+      if (already.has(key) || key === token) return false;
+      return complete ? true : key.includes(token);
+    })
+    .slice(0, SUGGEST_LIMIT);
+
+  els.artistSuggest.innerHTML = matches
+    .map(name => `<button type="button" class="suggest-chip" data-mode="${mode}" data-name="${escapeHTML(name)}">${escapeHTML(name)}</button>`)
+    .join("");
 }
+
 /* 목록의 버튼들: 이벤트 위임 */
 els.list.addEventListener("click", function(e) {
-const btn = e.target.closest("button[data-action]");
-if (!btn) return;
-const id = btn.dataset.id;
-if (btn.dataset.action === "edit") editGig(id);
-if (btn.dataset.action === "delete") deleteGig(id);
-if (btn.dataset.action === "advance") advanceStatus(id);
-if (btn.dataset.action === "mark-done") setStatus(id, "관람 완료");
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  if (btn.dataset.action === "edit") editGig(id);
+  if (btn.dataset.action === "delete") deleteGig(id);
+  if (btn.dataset.action === "advance") advanceStatus(id);
+  if (btn.dataset.action === "mark-done") setStatus(id, "관람 완료");
 });
+
 /* ---------- 렌더링 ---------- */
+
 function renderList() {
-if (gigs.length === 0) {
-els.list.innerHTML =
-'<div class="empty">아직 기록된 공연이 없습니다.</div>';
-return;
+  if (gigs.length === 0) {
+    els.list.innerHTML =
+      '<div class="empty">아직 기록된 공연이 없습니다.</div>';
+    return;
+  }
+
+  els.list.innerHTML = [...gigs]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .map(gig => {
+      const title = escapeHTML(gigTitle(gig));
+      const artist = escapeHTML(artistShort(gig.artists));
+      const lineupFull = escapeHTML(gig.artists.join(", "));
+      const label = `${title} ${escapeHTML(gig.date)}`;
+      const lineup = gig.artists.length > 1
+        ? `<div class="gig-lineup">${lineupFull}</div>`
+        : "";
+      const isEditing = gig.id === editingId;
+      const safeId = escapeHTML(gig.id);
+      const statusText = escapeHTML(gig.status);
+      const statusClass = STATUS_CLASS[gig.status] || "status-before";
+      const next = NEXT_STATUS[gig.status];
+      const diff = daysUntil(gig.date);
+
+      /* 눌러서 다음 단계로 넘기는 칩 (관람 완료는 고정) */
+      const chip = next
+        ? `<button type="button" class="status clickable ${statusClass}"
+             data-action="advance" data-id="${safeId}"
+             aria-label="${label} 상태: ${statusText}. 눌러서 ${escapeHTML(next)}로 변경"
+             title="눌러서 '${escapeHTML(next)}'로 변경">${statusText}</button>`
+        : `<span class="status ${statusClass}">${statusText}</span>`;
+
+      /* D-day: 오늘 이후 공연만, 관람 완료는 표시하지 않음 */
+      const dday = diff >= 0 && gig.status !== "관람 완료"
+        ? `<span class="dday${diff === 0 ? " today" : ""}">${diff === 0 ? "D-DAY" : "D-" + diff}</span>`
+        : "";
+
+      /* 공연일이 지났는데 관람 완료가 아니면 힌트 */
+      const hint = diff < 0 && gig.status !== "관람 완료"
+        ? `<div class="gig-hint">
+             <span>공연일이 지났어요. 관람 완료로 바꿀까요?</span>
+             <button type="button" class="small-btn"
+               data-action="mark-done" data-id="${safeId}"
+               aria-label="${label} 관람 완료로 변경">관람 완료로 변경</button>
+           </div>`
+        : "";
+
+      return `
+        <div class="gig-card${isEditing ? " editing" : ""}">
+          <div class="gig-top">
+            <div class="gig-artist" title="${title}">${title}</div>
+
+            <div class="gig-top-right">
+              ${dday}
+              ${chip}
+
+              <div class="gig-actions">
+                <button type="button" class="small-btn"
+                  data-action="edit" data-id="${safeId}"
+                  aria-label="${label} 공연 수정">수정</button>
+                <button type="button" class="small-btn delete-btn"
+                  data-action="delete" data-id="${safeId}"
+                  aria-label="${label} 공연 삭제">삭제</button>
+              </div>
+            </div>
+          </div>
+
+          ${lineup}
+
+          <div class="gig-bottom">
+            <div class="gig-info">
+              <span class="gig-date"
+                title="${escapeHTML(weekdayText(gig.date))}">${formatDateWithWeekday(gig.date)}</span>
+              <span class="gig-separator" aria-hidden="true">·</span>
+              <span title="${lineupFull}">${artist}</span>
+              <span class="gig-separator" aria-hidden="true">·</span>
+              <span>${escapeHTML(gig.venue || "장소 미기록")}</span>
+            </div>
+
+            <div class="gig-price">${won(gig.price)}</div>
+          </div>
+          ${hint}
+        </div>
+      `;
+    }).join("");
 }
-els.list.innerHTML = [...gigs]
-.sort((a, b) => b.date.localeCompare(a.date))
-.map(gig => {
-const title = escapeHTML(gigTitle(gig));
-const artist = escapeHTML(artistShort(gig.artists));
-const lineupFull = escapeHTML(gig.artists.join(", "));
-const label = ⁠${title} ${escapeHTML(gig.date)}⁠;
-const lineup = gig.artists.length > 1
-? ⁠<div class="gig-lineup">${lineupFull}</div>⁠
-: "";
-const isEditing = gig.id === editingId;
-const safeId = escapeHTML(gig.id);
-const statusText = escapeHTML(gig.status);
-const statusClass = STATUS_CLASS[gig.status] || "status-before";
-const next = NEXT_STATUS[gig.status];
-const diff = daysUntil(gig.date);
-/* 눌러서 다음 단계로 넘기는 칩 (관람 완료는 고정) */
-const chip = next
-? ⁠<button type="button" class="status clickable ${statusClass}" data-action="advance" data-id="${safeId}" aria-label="${label} 상태: ${statusText}. 눌러서 ${escapeHTML(next)}로 변경" title="눌러서 '${escapeHTML(next)}'로 변경">${statusText}</button>⁠
-: ⁠<span class="status ${statusClass}">${statusText}</span>⁠;
-/* D-day: 오늘 이후 공연만, 관람 완료는 표시하지 않음 */
-const dday = diff >= 0 && gig.status !== "관람 완료"
-? ⁠<span class="dday${diff === 0 ? " today" : ""}">${diff === 0 ? "D-DAY" : "D-" + diff}</span>⁠
-: "";
-/* 공연일이 지났는데 관람 완료가 아니면 힌트 */
-const hint = diff < 0 && gig.status !== "관람 완료"
-? ⁠<div class="gig-hint"> <span>공연일이 지났어요. 관람 완료로 바꿀까요?</span> <button type="button" class="small-btn" data-action="mark-done" data-id="${safeId}" aria-label="${label} 관람 완료로 변경">관람 완료로 변경</button> </div>⁠
-: "";
-return `
-<div class="gig-card${isEditing ? " editing" : ""}">
-<div class="gig-top">
-<div class="gig-artist" title="${title}">${title}</div>
-<div class="gig-top-right">
-${dday}
-${chip}
-<div class="gig-actions">
-<button type="button" class="small-btn"
-data-action="edit" data-id="${safeId}"
-aria-label="${label} 공연 수정">수정</button>
-<button type="button" class="small-btn delete-btn"
-data-action="delete" data-id="${safeId}"
-aria-label="${label} 공연 삭제">삭제</button>
-</div>
-</div>
-</div>
-${lineup}
-<div class="gig-bottom">
-<div class="gig-info">
-<span class="gig-date"
-title="${escapeHTML(weekdayText(gig.date))}">￼
-￼
-<span title="${lineupFull}">{artist}</span>
-<span class="gig-separator" aria-hidden="true">·</span>
-<span>${escapeHTML(gig.venue || "장소 미기록")}</span>
-</div>
-<div class="gig-price">${won(gig.price)}</div>
-</div>
-${hint}
-</div>
-`;
-}).join("");
-}
+
 /* 통계 집계 기준
-￼ 지출: 예매 전/예매 완료를 포함한 모든 기록
-￼ 관람 횟수: '관람 완료'만 */
+   - 지출: 예매 전/예매 완료를 포함한 모든 기록
+   - 관람 횟수: '관람 완료'만 */
 const WATCHED = "관람 완료";
 const isWatched = gig => gig.status === WATCHED;
+
 /* 전체 통계 */
 function renderTotals() {
-const total = gigs.reduce((sum, gig) => sum + gig.price, 0);
-els.totalGigs.textContent = gigs.filter(isWatched).length;
-els.totalSpent.textContent = won(total);
+  const total = gigs.reduce((sum, gig) => sum + gig.price, 0);
+
+  els.totalGigs.textContent = gigs.filter(isWatched).length;
+  els.totalSpent.textContent = won(total);
 }
+
 /* 월별 지출 및 관람 횟수: 최근 N개월만 보이고 나머지는 접어 둠 */
 let monthsExpanded = false;
+
 function renderMonthly() {
-const months = {};
-gigs.forEach(gig => {
-const month = gig.date.slice(0, 7);
-if (!months[month]) months[month] = { count: 0, price: 0 };
-if (isWatched(gig)) months[month].count += 1;
-months[month].price += gig.price;
-});
-const entries = Object.entries(months)
-.sort((a, b) => b[0].localeCompare(a[0]));
-/* 막대 길이는 전체 월 기준 (펼치기/접기로 길이가 바뀌지 않게) */
-const max = Math.max(1, ...entries.map(e => e[1].price));
-const extra = Math.max(0, entries.length - MONTHS_SHOWN);
-/* 접을 게 없어지면 펼침 상태 초기화 */
-if (extra === 0) monthsExpanded = false;
-els.monthly.innerHTML = entries.length
-? entries.map(([month, data], index) => ⁠<tr${index >= MONTHS_SHOWN && !monthsExpanded ? " hidden" : ""}> <td>${escapeHTML(month)}</td> <td>${data.count}회</td> <td> <div class="month-row"> <div class="bar-bg" role="img" aria-label="최대 월 지출 대비 ${Math.round(data.price / max * 100)}%"> <div class="bar" style="width:${data.price / max * 100}%"></div> </div> </div> </td> <td class="month-price">${won(data.price)}</td> </tr>⁠).join("")
-: '<tr><td colspan="4" class="empty">아직 통계가 없습니다.</td></tr>';
-els.monthlyToggle.hidden = extra === 0;
-els.monthlyToggle.setAttribute("aria-expanded", String(monthsExpanded));
-els.monthlyToggle.textContent = monthsExpanded
-? "접기 ▲"
-: ⁠이전 ${extra}개월 보기 ▼⁠;
+  const months = {};
+
+  gigs.forEach(gig => {
+    const month = gig.date.slice(0, 7);
+
+    if (!months[month]) months[month] = { count: 0, price: 0 };
+
+    if (isWatched(gig)) months[month].count += 1;
+    months[month].price += gig.price;
+  });
+
+  const entries = Object.entries(months)
+    .sort((a, b) => b[0].localeCompare(a[0]));
+
+  /* 막대 길이는 전체 월 기준 (펼치기/접기로 길이가 바뀌지 않게) */
+  const max = Math.max(1, ...entries.map(e => e[1].price));
+
+  const extra = Math.max(0, entries.length - MONTHS_SHOWN);
+
+  /* 접을 게 없어지면 펼침 상태 초기화 */
+  if (extra === 0) monthsExpanded = false;
+
+  els.monthly.innerHTML = entries.length
+    ? entries.map(([month, data], index) => `
+        <tr${index >= MONTHS_SHOWN && !monthsExpanded ? " hidden" : ""}>
+          <td>${escapeHTML(month)}</td>
+          <td>${data.count}회</td>
+          <td>
+            <div class="month-row">
+              <div class="bar-bg" role="img"
+                aria-label="최대 월 지출 대비 ${Math.round(data.price / max * 100)}%">
+                <div class="bar" style="width:${data.price / max * 100}%"></div>
+              </div>
+            </div>
+          </td>
+          <td class="month-price">${won(data.price)}</td>
+        </tr>
+      `).join("")
+    : '<tr><td colspan="4" class="empty">아직 통계가 없습니다.</td></tr>';
+
+  els.monthlyToggle.hidden = extra === 0;
+  els.monthlyToggle.setAttribute("aria-expanded", String(monthsExpanded));
+  els.monthlyToggle.textContent = monthsExpanded
+    ? "접기 ▲"
+    : `이전 ${extra}개월 보기 ▼`;
 }
+
 els.monthlyToggle.addEventListener("click", function() {
-monthsExpanded = !monthsExpanded;
-renderMonthly();
+  monthsExpanded = !monthsExpanded;
+  renderMonthly();
 });
+
 /* 밴드별 관람 횟수: 상위 N팀만 보이고 나머지는 접어 둠 */
 const ARTISTS_SHOWN = 3;
 let artistsExpanded = false;
+
 function renderArtists() {
-const artists = {};
-/* 관람 완료한 공연만, 여러 팀이 나온 공연은 라인업의 팀마다 1회씩 집계 */
-gigs.filter(isWatched).forEach(gig => {
-gig.artists.forEach(name => {
-artists[name] = (artists[name] || 0) + 1;
-});
-});
-/* 관람 횟수가 같은 팀은 한 줄로 묶음 (많이 본 순, 이름은 가나다순) */
-const byCount = new Map();
-Object.entries(artists).forEach(([name, count]) => {
-if (!byCount.has(count)) byCount.set(count, []);
-byCount.get(count).push(name);
-});
-/* 순위는 건너뛰지 않고 1위, 2위, 3위… 순서대로 (동률 팀이 몇 팀이든 다음은 바로 다음 순위) */
-const groups = [...byCount.entries()]
-.sort((a, b) => b[0] - a[0])
-.map(([count, names], index) => ({
-rank: index + 1,
-count,
-names: names.sort((a, b) => a.localeCompare(b, "ko"))
-}));
-/* 3위까지만 보이고 나머지는 접음 */
-const hiddenGroups = groups.filter(g => g.rank > ARTISTS_SHOWN);
-const extra = hiddenGroups.reduce((sum, g) => sum + g.names.length, 0);
-/* 접을 게 없어지면 펼침 상태 초기화 */
-if (extra === 0) artistsExpanded = false;
-els.artists.innerHTML = groups.length
-? groups.map(g => ⁠<tr${g.rank > ARTISTS_SHOWN && !artistsExpanded ? " hidden" : ""}> <td>${g.rank}위</td> <td style="text-align:left;">${g.names.map(escapeHTML).join(", ")}</td> <td><strong>${g.count}회</strong></td> </tr>⁠).join("")
-: '<tr><td colspan="3" class="empty">아직 공연 기록이 없습니다.</td></tr>';
-els.artistToggle.hidden = extra === 0;
-els.artistToggle.setAttribute("aria-expanded", String(artistsExpanded));
-els.artistToggle.textContent = artistsExpanded
-? "접기 ▲"
-: ⁠나머지 ${extra}팀 보기 ▼⁠;
+  const artists = {};
+
+  /* 관람 완료한 공연만, 여러 팀이 나온 공연은 라인업의 팀마다 1회씩 집계 */
+  gigs.filter(isWatched).forEach(gig => {
+    gig.artists.forEach(name => {
+      artists[name] = (artists[name] || 0) + 1;
+    });
+  });
+
+  /* 관람 횟수가 같은 팀은 한 줄로 묶음 (많이 본 순, 이름은 가나다순) */
+  const byCount = new Map();
+
+  Object.entries(artists).forEach(([name, count]) => {
+    if (!byCount.has(count)) byCount.set(count, []);
+    byCount.get(count).push(name);
+  });
+
+  /* 순위는 건너뛰지 않고 1위, 2위, 3위… 순서대로 (동률 팀이 몇 팀이든 다음은 바로 다음 순위) */
+  const groups = [...byCount.entries()]
+    .sort((a, b) => b[0] - a[0])
+    .map(([count, names], index) => ({
+      rank: index + 1,
+      count,
+      names: names.sort((a, b) => a.localeCompare(b, "ko"))
+    }));
+
+  /* 3위까지만 보이고 나머지는 접음 */
+  const hiddenGroups = groups.filter(g => g.rank > ARTISTS_SHOWN);
+  const extra = hiddenGroups.reduce((sum, g) => sum + g.names.length, 0);
+
+  /* 접을 게 없어지면 펼침 상태 초기화 */
+  if (extra === 0) artistsExpanded = false;
+
+  els.artists.innerHTML = groups.length
+    ? groups.map(g => `
+        <tr${g.rank > ARTISTS_SHOWN && !artistsExpanded ? " hidden" : ""}>
+          <td>${g.rank}위</td>
+          <td style="text-align:left;">${g.names.map(escapeHTML).join(", ")}</td>
+          <td><strong>${g.count}회</strong></td>
+        </tr>
+      `).join("")
+    : '<tr><td colspan="3" class="empty">아직 공연 기록이 없습니다.</td></tr>';
+
+  els.artistToggle.hidden = extra === 0;
+  els.artistToggle.setAttribute("aria-expanded", String(artistsExpanded));
+  els.artistToggle.textContent = artistsExpanded
+    ? "접기 ▲"
+    : `나머지 ${extra}팀 보기 ▼`;
 }
+
 els.artistToggle.addEventListener("click", function() {
-artistsExpanded = !artistsExpanded;
-renderArtists();
+  artistsExpanded = !artistsExpanded;
+  renderArtists();
 });
+
 function renderStats() {
-renderTotals();
-renderMonthly();
-renderArtists();
+  renderTotals();
+  renderMonthly();
+  renderArtists();
 }
+
 /* 장소 자동완성 후보(중복 없이) + 밴드 추천 칩 갱신 */
 function renderSuggestions() {
-els.venueList.innerHTML = [...new Set(gigs.map(g => g.venue).filter(Boolean))]
-.sort((a, b) => a.localeCompare(b, "ko"))
-.map(value => ⁠<option value="${escapeHTML(value)}"></option>⁠)
-.join("");
-renderArtistSuggest();
+  els.venueList.innerHTML = [...new Set(gigs.map(g => g.venue).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ko"))
+    .map(value => `<option value="${escapeHTML(value)}"></option>`)
+    .join("");
+
+  renderArtistSuggest();
 }
+
 function render() {
-renderList();
-renderStats();
-renderSuggestions();
+  renderList();
+  renderStats();
+  renderSuggestions();
 }
+
 /* ---------- 내보내기 / 백업 ---------- */
+
 function downloadFile(content, filename, type) {
-const blob = new Blob([content], { type });
-const url = URL.createObjectURL(blob);
-const link = document.createElement("a");
-link.href = url;
-link.download = filename;
-document.body.appendChild(link);
-link.click();
-link.remove();
-setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
 function todayStamp() {
-const d = new Date();
-const pad = n => String(n).padStart(2, "0");
-return ⁠${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}⁠;
+  const d = new Date();
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
 }
+
 /* 엑셀에서 수식으로 실행되지 않도록 앞에 작은따옴표 추가 */
 function csvSafe(value) {
-let text = String(value ?? "");
-if (/^[=+-@\t\r]/.test(text)) text = "'" + text;
-return '"' + text.replace(/"/g, '""') + '"';
+  let text = String(value ?? "");
+  if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
+  return '"' + text.replace(/"/g, '""') + '"';
 }
+
 function exportCSV() {
-if (gigs.length === 0) {
-showToast("내보낼 공연 기록이 없습니다.", true);
-return;
+  if (gigs.length === 0) {
+    showToast("내보낼 공연 기록이 없습니다.", true);
+    return;
+  }
+
+  const header = ["밴드", "날짜", "공연명", "장소", "가격", "상태"];
+
+  const rows = [...gigs]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map(gig => [
+      gig.artist,
+      gig.date,
+      gig.name,
+      gig.venue,
+      gig.price,
+      gig.status
+    ]);
+
+  const csv = [header, ...rows]
+    .map(row => row.map(csvSafe).join(","))
+    .join("\r\n");
+
+  downloadFile("\uFEFF" + csv, "공연기록.csv", "text/csv;charset=utf-8;");
 }
-const header = ["밴드", "날짜", "공연명", "장소", "가격", "상태"];
-const rows = [...gigs]
-.sort((a, b) => a.date.localeCompare(b.date))
-.map(gig => [
-gig.artist,
-gig.date,
-gig.name,
-gig.venue,
-gig.price,
-gig.status
-]);
-const csv = [header, ...rows]
-.map(row => row.map(csvSafe).join(","))
-.join("\r\n");
-downloadFile("\uFEFF" + csv, "공연기록.csv", "text/csv;charset=utf-8;");
-}
+
 /* 복원 가능한 JSON 백업 */
 function exportJSON() {
-if (gigs.length === 0) {
-showToast("백업할 공연 기록이 없습니다.", true);
-return;
+  if (gigs.length === 0) {
+    showToast("백업할 공연 기록이 없습니다.", true);
+    return;
+  }
+
+  const data = {
+    app: "gig-tracker",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    gigs
+  };
+
+  downloadFile(
+    JSON.stringify(data, null, 2),
+    `공연기록_백업_${todayStamp()}.json`,
+    "application/json;charset=utf-8;"
+  );
 }
-const data = {
-app: "gig-tracker",
-version: 1,
-exportedAt: new Date().toISOString(),
-gigs
-};
-downloadFile(
-JSON.stringify(data, null, 2),
-⁠공연기록_백업_${todayStamp()}.json⁠,
-"application/json;charset=utf-8;"
-);
-}
+
 async function importJSON(file) {
-if (!file) return;
-if (file.size > 5 * 1024 * 1024) {
-showToast("파일이 너무 큽니다. (최대 5MB)", true);
-return;
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    showToast("파일이 너무 큽니다. (최대 5MB)", true);
+    return;
+  }
+
+  let parsed;
+
+  try {
+    parsed = JSON.parse(await file.text());
+  } catch (error) {
+    showToast("올바른 백업 파일이 아닙니다.", true);
+    return;
+  }
+
+  const rawList = Array.isArray(parsed) ? parsed : parsed && parsed.gigs;
+  const incoming = normalizeList(rawList);
+
+  if (incoming.length === 0) {
+    showToast("가져올 수 있는 공연 기록이 없습니다.", true);
+    return;
+  }
+
+  /* 같은 id가 이미 있으면 건너뛰고, 없는 것만 추가 */
+  const existingIds = new Set(gigs.map(g => g.id));
+  const added = incoming.filter(g => !existingIds.has(g.id));
+
+  if (added.length === 0) {
+    showToast("이미 모두 등록된 기록입니다.");
+    return;
+  }
+
+  const ok = await askConfirm(
+    `${added.length}개의 공연 기록을 추가할까요? (중복 ${incoming.length - added.length}개 제외)`,
+    "추가"
+  );
+  if (!ok) return;
+
+  const backup = gigs;
+  gigs = [...gigs, ...added];
+
+  if (!save()) {
+    gigs = backup;
+    return;
+  }
+
+  render();
+  showToast(`${added.length}개의 공연 기록을 복원했습니다.`);
 }
-let parsed;
-try {
-parsed = JSON.parse(await file.text());
-} catch (error) {
-showToast("올바른 백업 파일이 아닙니다.", true);
-return;
-}
-const rawList = Array.isArray(parsed) ? parsed : parsed && parsed.gigs;
-const incoming = normalizeList(rawList);
-if (incoming.length === 0) {
-showToast("가져올 수 있는 공연 기록이 없습니다.", true);
-return;
-}
-/* 같은 id가 이미 있으면 건너뛰고, 없는 것만 추가 */
-const existingIds = new Set(gigs.map(g => g.id));
-const added = incoming.filter(g => !existingIds.has(g.id));
-if (added.length === 0) {
-showToast("이미 모두 등록된 기록입니다.");
-return;
-}
-const ok = await askConfirm(
-⁠${added.length}개의 공연 기록을 추가할까요? (중복 ${incoming.length - added.length}개 제외)⁠,
-"추가"
-);
-if (!ok) return;
-const backup = gigs;
-gigs = [...gigs, ...added];
-if (!save()) {
-gigs = backup;
-return;
-}
-render();
-showToast(⁠${added.length}개의 공연 기록을 복원했습니다.⁠);
-}
+
 $("csvBtn").addEventListener("click", exportCSV);
 $("jsonBtn").addEventListener("click", exportJSON);
 $("importBtn").addEventListener("click", () => els.importFile.click());
+
 els.importFile.addEventListener("change", async function() {
-await importJSON(this.files[0]);
-this.value = "";
+  await importJSON(this.files[0]);
+  this.value = "";
 });
+
 /* ---------- 테마 ---------- */
+
 const THEME_KEY = "gigTheme";
 const DEFAULT_THEME = "default";
+
 /* swatch: 미리보기 색 (배경 / 포인트) */
 const THEMES = [
-{ id: "white", name: "화이트", bg: "#ffffff", point: "#222222" },
-{ id: "black", name: "검정", bg: "#000000", point: "#eeeeee" },
-{ id: "default", name: "웜 다크", bg: "#1c1b19", point: "#c0b39c" },
-{ id: "light", name: "크림", bg: "#f4f0e8", point: "#7a6a4f" },
-{ id: "cherry", name: "Cherry Cream", bg: "#faf3ef", point: "#b77c8b" },
-{ id: "sage", name: "Sage Paper", bg: "#f1f3ea", point: "#788b6a" }
+  { id: "default", name: "웜 다크", bg: "#1c1b19", point: "#c0b39c" },
+  { id: "light", name: "크림", bg: "#f4f0e8", point: "#7a6a4f" },
+  { id: "blue", name: "블루", bg: "#12161f", point: "#9db7e8" },
+  { id: "green", name: "그린", bg: "#151a16", point: "#a8c9a0" },
+  { id: "rose", name: "로즈", bg: "#1d1719", point: "#e0b0bc" }
 ];
+
 function currentTheme() {
-const id = document.documentElement.getAttribute("data-theme") || DEFAULT_THEME;
-return THEMES.some(t => t.id === id) ? id : DEFAULT_THEME;
+  const id = document.documentElement.getAttribute("data-theme") || DEFAULT_THEME;
+  return THEMES.some(t => t.id === id) ? id : DEFAULT_THEME;
 }
+
 function applyTheme(id) {
-if (!THEMES.some(t => t.id === id)) id = DEFAULT_THEME;
-if (id === DEFAULT_THEME) {
-document.documentElement.removeAttribute("data-theme");
-} else {
-document.documentElement.setAttribute("data-theme", id);
+  if (!THEMES.some(t => t.id === id)) id = DEFAULT_THEME;
+
+  if (id === DEFAULT_THEME) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", id);
+  }
+
+  try {
+    localStorage.setItem(THEME_KEY, id);
+  } catch (error) {}
+
+  renderThemes();
 }
-try {
-localStorage.setItem(THEME_KEY, id);
-} catch (error) {}
-renderThemes();
-}
+
 function renderThemes() {
-const active = currentTheme();
-$("themeList").innerHTML = THEMES.map(t => ⁠<button type="button" class="theme-option" role="radio" data-theme-id="${t.id}" aria-label="${escapeHTML(t.name)}" aria-checked="${t.id === active}"> <span class="theme-swatch" style="background:${t.bg}" aria-hidden="true"><i style="background:${t.point}"></i></span> </button>⁠).join("");
+  const active = currentTheme();
+
+  $("themeList").innerHTML = THEMES.map(t => `
+    <button type="button" class="theme-option" role="radio"
+      data-theme-id="${t.id}" aria-checked="${t.id === active}">
+      <span class="theme-swatch" style="background:${t.bg}"><i style="background:${t.point}"></i></span>
+      ${escapeHTML(t.name)}
+    </button>
+  `).join("");
 }
+
 $("themeList").addEventListener("click", function(e) {
-const btn = e.target.closest("button[data-theme-id]");
-if (btn) applyTheme(btn.dataset.themeId);
+  const btn = e.target.closest("button[data-theme-id]");
+  if (btn) applyTheme(btn.dataset.themeId);
 });
+
 /* ---------- 초기화 ---------- */
+
 /* 정리된 데이터를 다시 저장 (구버전 데이터 마이그레이션) */
 save();
 els.date.value = todayISO();
 takeSnapshot();
 render();
 renderThemes();
+
 /* 탭으로 돌아왔을 때 D-day와 힌트를 최신 날짜로 갱신 */
 document.addEventListener("visibilitychange", () => {
-if (!document.hidden) renderList();
+  if (!document.hidden) renderList();
 });
 </script>
+
 </body>
 </html>
