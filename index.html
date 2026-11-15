@@ -743,7 +743,7 @@ dialog p {
   <div id="gigList" class="gig-list"></div>
 </div>
 
-<div class="section-title">월별 지출 <small>(최근 6개월)</small></div>
+<div class="section-title">월별 지출</div>
 
 <div class="table-wrap">
 <table class="monthly-table">
@@ -757,6 +757,7 @@ dialog p {
   </thead>
   <tbody id="monthlyStats"></tbody>
 </table>
+<button type="button" class="more-btn" id="monthlyToggle" aria-expanded="false" aria-controls="monthlyStats" hidden></button>
 </div>
 
 <div class="section-title">밴드별 관람 횟수</div>
@@ -812,7 +813,7 @@ dialog p {
 const STORAGE_KEY = "myGigs";
 const STATUSES = ["예매 전", "예매 완료", "관람 완료"];
 const DEFAULT_STATUS = "관람 완료";
-const MONTHS_SHOWN = 6;
+const MONTHS_SHOWN = 3;
 
 const STATUS_CLASS = {
   "예매 전": "status-before",
@@ -845,6 +846,7 @@ const els = {
   artistSuggest: $("artistSuggest"),
   venueList: $("venueOptions"),
   monthly: $("monthlyStats"),
+  monthlyToggle: $("monthlyToggle"),
   artists: $("artistStats"),
   artistToggle: $("artistToggle"),
   totalGigs: $("totalGigs"),
@@ -1496,15 +1498,23 @@ function renderList() {
     }).join("");
 }
 
-/* 전체 통계 (상태와 관계없이 모든 기록을 집계) */
+/* 통계 집계 기준
+   - 지출: 예매 전/예매 완료를 포함한 모든 기록
+   - 관람 횟수: '관람 완료'만 */
+const WATCHED = "관람 완료";
+const isWatched = gig => gig.status === WATCHED;
+
+/* 전체 통계 */
 function renderTotals() {
   const total = gigs.reduce((sum, gig) => sum + gig.price, 0);
 
-  els.totalGigs.textContent = gigs.length;
+  els.totalGigs.textContent = gigs.filter(isWatched).length;
   els.totalSpent.textContent = won(total);
 }
 
-/* 월별 지출 및 관람 횟수 */
+/* 월별 지출 및 관람 횟수: 최근 N개월만 보이고 나머지는 접어 둠 */
+let monthsExpanded = false;
+
 function renderMonthly() {
   const months = {};
 
@@ -1513,19 +1523,24 @@ function renderMonthly() {
 
     if (!months[month]) months[month] = { count: 0, price: 0 };
 
-    months[month].count += 1;
+    if (isWatched(gig)) months[month].count += 1;
     months[month].price += gig.price;
   });
 
   const entries = Object.entries(months)
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, MONTHS_SHOWN);
+    .sort((a, b) => b[0].localeCompare(a[0]));
 
+  /* 막대 길이는 전체 월 기준 (펼치기/접기로 길이가 바뀌지 않게) */
   const max = Math.max(1, ...entries.map(e => e[1].price));
 
+  const extra = Math.max(0, entries.length - MONTHS_SHOWN);
+
+  /* 접을 게 없어지면 펼침 상태 초기화 */
+  if (extra === 0) monthsExpanded = false;
+
   els.monthly.innerHTML = entries.length
-    ? entries.map(([month, data]) => `
-        <tr>
+    ? entries.map(([month, data], index) => `
+        <tr${index >= MONTHS_SHOWN && !monthsExpanded ? " hidden" : ""}>
           <td>${escapeHTML(month)}</td>
           <td>${data.count}회</td>
           <td>
@@ -1540,7 +1555,18 @@ function renderMonthly() {
         </tr>
       `).join("")
     : '<tr><td colspan="4" class="empty">아직 통계가 없습니다.</td></tr>';
+
+  els.monthlyToggle.hidden = extra === 0;
+  els.monthlyToggle.setAttribute("aria-expanded", String(monthsExpanded));
+  els.monthlyToggle.textContent = monthsExpanded
+    ? "접기 ▲"
+    : `이전 ${extra}개월 보기 ▼`;
 }
+
+els.monthlyToggle.addEventListener("click", function() {
+  monthsExpanded = !monthsExpanded;
+  renderMonthly();
+});
 
 /* 밴드별 관람 횟수: 상위 N팀만 보이고 나머지는 접어 둠 */
 const ARTISTS_SHOWN = 3;
@@ -1549,8 +1575,8 @@ let artistsExpanded = false;
 function renderArtists() {
   const artists = {};
 
-  /* 여러 팀이 나온 공연은 라인업의 팀마다 1회씩 집계 */
-  gigs.forEach(gig => {
+  /* 관람 완료한 공연만, 여러 팀이 나온 공연은 라인업의 팀마다 1회씩 집계 */
+  gigs.filter(isWatched).forEach(gig => {
     gig.artists.forEach(name => {
       artists[name] = (artists[name] || 0) + 1;
     });
