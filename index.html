@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="white">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,19 +11,22 @@
 <script>
 /* 저장된 테마를 화면이 그려지기 전에 적용 (깜빡임 방지) */
 try {
+  var THEME_IDS = ["white", "black", "gray", "slate", "sky", "peri", "cherry", "blush", "latte", "teal", "sage", "plum"];
   var savedTheme = localStorage.getItem("gigTheme");
+
   /* 삭제된 테마(웜 다크 포함)는 기본 테마(화이트)로, 기존 로즈 테마는 체리 크림으로 연결 */
-  if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa" || savedTheme === "default") savedTheme = "white";
+  if (["green", "olive", "blue", "cocoa", "default"].indexOf(savedTheme) !== -1) savedTheme = "white";
   if (savedTheme === "rose") savedTheme = "cherry";
+
   /* 저장된 테마가 없거나 알 수 없는 값이면 화이트가 기본 */
-  if (["white", "black", "cherry", "sage", "blush", "slate", "plum", "teal", "sky", "latte"].indexOf(savedTheme) === -1) {if (["white", "black", "gray", "slate", "sky", "peri", "cherry", "blush", "latte", "teal", "sage", "plum"].indexOf(savedTheme) === -1) {
-    document.documentElement.setAttribute("data-theme", "white");
-  } else {
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    localStorage.setItem("gigTheme", savedTheme);
-  }
-} catch (e) {}
-</script>
+  if (THEME_IDS.indexOf(savedTheme) === -1) savedTheme = "white";
+
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  localStorage.setItem("gigTheme", savedTheme);
+} catch (e) {
+  /* 저장소를 못 쓰는 환경(시크릿 모드 등)에서도 화이트로 */
+  document.documentElement.setAttribute("data-theme", "white");
+}
 
 <style>
 * { box-sizing: border-box; }
