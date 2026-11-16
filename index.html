@@ -16,7 +16,7 @@ try {
   if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa" || savedTheme === "default") savedTheme = "white";
   if (savedTheme === "rose") savedTheme = "cherry";
   /* 저장된 테마가 없거나 알 수 없는 값이면 화이트가 기본 */
-  if (["white", "black", "cherry", "sage", "blush", "slate", "plum", "teal", "sky", "latte"].indexOf(savedTheme) === -1) {
+  if (["white", "black", "cherry", "sage", "blush", "slate", "plum", "teal", "sky", "latte"].indexOf(savedTheme) === -1) {if (["white", "black", "gray", "slate", "sky", "peri", "cherry", "blush", "latte", "teal", "sage", "plum"].indexOf(savedTheme) === -1) {
     document.documentElement.setAttribute("data-theme", "white");
   } else {
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -380,6 +380,69 @@ try {
   --st-done-bg: #dcebd2;
 }
 
+/* 테마: 차콜 — 라이트 그레이 #ECECEC + 차콜 #4A4A4A */
+:root[data-theme="gray"] {
+  color-scheme: light;
+  --bg: #ececec;
+  --panel: #f7f7f7;
+  --panel-2: #dedede;
+  --panel-light: #f2f2f2;
+  --green: #4a4a4a;
+  --green-dark: #333333;
+  --text: #1c1c1c;
+  --muted: #686868;
+  --line: #d4d4d4;
+  --accent: #4a4a4a;
+  --danger: #b42318;
+  --danger-line: #d9a39d;
+  --danger-strong: #b42318;
+  --on-accent: #ffffff;
+  --input-line: #c8c8c8;
+  --placeholder: #9a9a9a;
+  --sep: #b5b5b5;
+  --th-text: #333333;
+  --row-line: #dcdcdc;
+  --bar-bg: #dadada;
+  --bar: #6b6b6b;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
+/* 테마: Periwinkle Blush — 연한 핑크화이트 #FBF6F5 + 페리윙클 #8199C8 */
+:root[data-theme="peri"] {
+  color-scheme: light;
+  --bg: #fbf6f5;
+  --panel: #fffcfb;
+  --panel-2: #f0e9ec;
+  --panel-light: #f6eff0;
+  --green: #8199c8;
+  --green-dark: #6379ad;
+  --text: #2a3350;
+  --muted: #6b7596;
+  --line: #e6dde0;
+  --accent: #6a82b5;
+  --danger: #a4483b;
+  --danger-line: #c98a80;
+  --danger-strong: #a4483b;
+  --on-accent: #fbf6f5;
+  --input-line: #ddd3d8;
+  --placeholder: #a09aae;
+  --sep: #c9c0cf;
+  --th-text: #4d5f8f;
+  --row-line: #eee6e8;
+  --bar-bg: #ebe3e8;
+  --bar: #8199c8;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
 body {
   margin: 0;
   padding: 32px 18px 45px;
@@ -1343,7 +1406,7 @@ button:hover { opacity: 0.82; }
 
 .theme-list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -3416,14 +3479,16 @@ const DEFAULT_THEME = "white"; /* 처음 들어왔을 때의 테마 */
 const THEMES = [
   { id: "white", name: "화이트", bg: "#ffffff", point: "#222222" },
   { id: "black", name: "검정", bg: "#000000", point: "#eeeeee" },
-  { id: "cherry", name: "Cherry Cream", bg: "#faf3ef", point: "#b77c8b" },
-  { id: "sage", name: "Sage Paper", bg: "#f1f3ea", point: "#788b6a" },
-  { id: "sky", name: "Sky Paper", bg: "#eef4f8", point: "#648aab" },
+  { id: "gray", name: "차콜", bg: "#ececec", point: "#4a4a4a" },
   { id: "slate", name: "Slate Mist", bg: "#50586c", point: "#dce2f0" },
-  { id: "latte", name: "Cocoa Latte", bg: "#f1edd9", point: "#70523d" },
+  { id: "sky", name: "Sky Paper", bg: "#eef4f8", point: "#648aab" },
+  { id: "peri", name: "Periwinkle Blush", bg: "#fbf6f5", point: "#8199c8" },
+  { id: "cherry", name: "Cherry Cream", bg: "#faf3ef", point: "#b77c8b" },
   { id: "blush", name: "Blush Blue", bg: "#ffdfde", point: "#6a7ba2" },
-  { id: "plum", name: "Plum Sage", bg: "#acc7b4", point: "#331b3f" },
-  { id: "teal", name: "Deep Teal", bg: "#f0edcc", point: "#02343f" }
+  { id: "latte", name: "Cocoa Latte", bg: "#f1edd9", point: "#70523d" },
+  { id: "teal", name: "Deep Teal", bg: "#f0edcc", point: "#02343f" },
+  { id: "sage", name: "Sage Paper", bg: "#f1f3ea", point: "#788b6a" },
+  { id: "plum", name: "Plum Sage", bg: "#acc7b4", point: "#331b3f" }
 ];
 
 function currentTheme() {
