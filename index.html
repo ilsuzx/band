@@ -3974,10 +3974,10 @@ renderThemes();
   </p>`
     },
     {
-      id: "update-1",
+      id: "update-2",
       minor: true,
       title: "업데이트 안내 (26.11.16)",
-      summary: "통계 연도별 보기 · 캘린더 월 요약 추가",
+      summary: "",      // ← 아래 글씨 제거
       body: `
 <ul class="tip-list">
     <li>통계 화면에 연도 선택 기능이 추가되었습니다.</li>
@@ -4039,7 +4039,7 @@ renderThemes();
         <span class="notice-new${isUnread(n.id) ? "" : " read"}" aria-hidden="true"></span>
         <span class="notice-item-main">
           <span class="notice-item-title">${n.title}</span>
-          <span class="notice-item-sub">${n.summary}</span>
+          ${n.summary ? `<span class="notice-item-sub">${n.summary}</span>` : ""}
         </span>
         <span class="notice-go" aria-hidden="true">›</span>
       </button>
