@@ -12,11 +12,11 @@
 /* 저장된 테마를 화면이 그려지기 전에 적용 (깜빡임 방지) */
 try {
   var savedTheme = localStorage.getItem("gigTheme");
-  /* 삭제된 테마는 기본 테마로, 기존 로즈 테마는 체리 크림으로 연결 */
-  if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa") savedTheme = "default";
+  /* 삭제된 테마(웜 다크 포함)는 기본 테마(화이트)로, 기존 로즈 테마는 체리 크림으로 연결 */
+  if (savedTheme === "green" || savedTheme === "olive" || savedTheme === "blue" || savedTheme === "cocoa" || savedTheme === "default") savedTheme = "white";
   if (savedTheme === "rose") savedTheme = "cherry";
   /* 저장된 테마가 없거나 알 수 없는 값이면 화이트가 기본 */
-  if (["white", "black", "default", "light", "cherry", "sage"].indexOf(savedTheme) === -1) {
+  if (["white", "black", "cherry", "sage", "blush", "slate", "plum", "teal", "sky", "latte"].indexOf(savedTheme) === -1) {
     document.documentElement.setAttribute("data-theme", "white");
   } else {
     document.documentElement.setAttribute("data-theme", savedTheme);
@@ -60,7 +60,7 @@ try {
   --st-done-bg: #37432f;
 }
 
-/* 테마: 기본(웜 다크)은 위 값, 나머지는 아래에서 덮어씀 */
+/* 테마: 위 값은 기본 안전값이고, 실제 테마는 아래에서 덮어씀 */
 /* 테마: 심플 화이트 */
 :root[data-theme="white"] {
   color-scheme: light;
@@ -85,37 +85,6 @@ try {
   --row-line: #eeeeee;
   --bar-bg: #eeeeee;
   --bar: #555555;
-  --st-before-fg: #85600f;
-  --st-before-bg: #f3e4bd;
-  --st-booked-fg: #2c6064;
-  --st-booked-bg: #d3e8ea;
-  --st-done-fg: #3b652c;
-  --st-done-bg: #dcebd2;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f4f0e8;
-  --panel: #fffdf8;
-  --panel-2: #ece6d9;
-  --panel-light: #f3eee3;
-  --green: #7a6a4f;
-  --green-dark: #a89877;
-  --text: #2b2824;
-  --muted: #6b6356;
-  --line: #d9d1c1;
-  --accent: #86683a;
-  --danger: #a4483b;
-  --danger-line: #c98a80;
-  --danger-strong: #a4483b;
-  --on-accent: #fffdf8;
-  --input-line: #cfc6b3;
-  --placeholder: #968d7c;
-  --sep: #b0a794;
-  --th-text: #5b5140;
-  --row-line: #e5dece;
-  --bar-bg: #e4dccb;
-  --bar: #a58b57;
   --st-before-fg: #85600f;
   --st-before-bg: #f3e4bd;
   --st-booked-fg: #2c6064;
@@ -211,6 +180,198 @@ try {
   --row-line: #e0e5d9;
   --bar-bg: #e1e7d9;
   --bar: #8b9d7b;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
+/* 테마: Blush Blue — 핑크 #FFDFDE 배경 + 블루그레이 #6A7BA2 포인트 */
+:root[data-theme="blush"] {
+  color-scheme: light;
+  --bg: #ffdfde;
+  --panel: #fff3f2;
+  --panel-2: #ecd2d6;
+  --panel-light: #ffecec;
+  --green: #6a7ba2;
+  --green-dark: #505c7a;
+  --text: #151920;
+  --muted: #424c64;
+  --line: #dac6cf;
+  --accent: #6a7ba2;
+  --danger: #a4483b;
+  --danger-line: #cd8c84;
+  --danger-strong: #a4483b;
+  --on-accent: #ffffff;
+  --input-line: #ccbdca;
+  --placeholder: #a3a1b9;
+  --sep: #bcb2c3;
+  --th-text: #455069;
+  --row-line: #e9d0d5;
+  --bar-bg: #e4cdd3;
+  --bar: #6a7ba2;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
+/* 테마: Slate Mist — 슬레이트 #50586C + 라이트 블루 #DCE2F0 */
+:root[data-theme="slate"] {
+  color-scheme: dark;
+  --bg: #50586c;
+  --panel: #404656;
+  --panel-2: #353a47;
+  --panel-light: #484f61;
+  --green: #dce2f0;
+  --green-dark: #969dae;
+  --text: #e8ecf5;
+  --muted: #c8cfde;
+  --line: #6f7689;
+  --accent: #dce2f0;
+  --danger: #f0b0aa;
+  --danger-line: #a2706e;
+  --danger-strong: #b85c62;
+  --on-accent: #303541;
+  --input-line: #7a8194;
+  --placeholder: #9da4b5;
+  --sep: #8f96a7;
+  --th-text: #DCE2F0;
+  --row-line: #3a3f4e;
+  --bar-bg: #323743;
+  --bar: #dce2f0;
+  --st-before-fg: #e3c473;
+  --st-before-bg: #403923;
+  --st-booked-fg: #a9c8d8;
+  --st-booked-bg: #263943;
+  --st-done-fg: #b7c9b0;
+  --st-done-bg: #303b30;
+}
+
+/* 테마: Plum Sage — 세이지 #ACC7B4 배경 + 플럼 #331B3F 포인트 */
+:root[data-theme="plum"] {
+  color-scheme: light;
+  --bg: #acc7b4;
+  --panel: #dfeae2;
+  --panel-2: #9cb1a5;
+  --panel-light: #cfdfd4;
+  --green: #331b3f;
+  --green-dark: #26142f;
+  --text: #0a050d;
+  --muted: #201127;
+  --line: #8e9c97;
+  --accent: #331b3f;
+  --danger: #8a2f2f;
+  --danger-line: #99736b;
+  --danger-strong: #8a2f2f;
+  --on-accent: #ffffff;
+  --input-line: #838d8c;
+  --placeholder: #615c6b;
+  --sep: #767a7f;
+  --th-text: #211229;
+  --row-line: #9aada2;
+  --bar-bg: #96a89f;
+  --bar: #331b3f;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
+/* 테마: Deep Teal — 크림 #F0EDCC 배경 + 딥 틸 #02343F 포인트 */
+:root[data-theme="teal"] {
+  color-scheme: light;
+  --bg: #f0edcc;
+  --panel: #f9f8ec;
+  --panel-2: #d1d5ba;
+  --panel-light: #f6f5e1;
+  --green: #02343f;
+  --green-dark: #02272f;
+  --text: #000a0d;
+  --muted: #012027;
+  --line: #b4bfa9;
+  --accent: #02343f;
+  --danger: #a4483b;
+  --danger-line: #c6927c;
+  --danger-strong: #a4483b;
+  --on-accent: #ffffff;
+  --input-line: #9fae9c;
+  --placeholder: #5c7a75;
+  --sep: #859a8d;
+  --th-text: #012229;
+  --row-line: #ccd1b7;
+  --bar-bg: #c5ccb3;
+  --bar: #02343f;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
+/* 테마: Sky Paper — 연한 하늘색 #EEF4F8 배경 + 스카이 블루 #648AAB 포인트 */
+:root[data-theme="sky"] {
+  color-scheme: light;
+  --bg: #eef4f8;
+  --panel: #fbfdfe;
+  --panel-2: #e2ecf3;
+  --panel-light: #f3f8fb;
+  --green: #648aab;
+  --green-dark: #4d6e8a;
+  --text: #2b3640;
+  --muted: #667784;
+  --line: #d5e2eb;
+  --accent: #648aab;
+  --danger: #a4483b;
+  --danger-line: #c98a80;
+  --danger-strong: #a4483b;
+  --on-accent: #ffffff;
+  --input-line: #c8d8e4;
+  --placeholder: #93a4b1;
+  --sep: #b4c6d4;
+  --th-text: #46657f;
+  --row-line: #e0eaf1;
+  --bar-bg: #dfe9f1;
+  --bar: #7c9bb8;
+  --st-before-fg: #85600f;
+  --st-before-bg: #f3e4bd;
+  --st-booked-fg: #2c6064;
+  --st-booked-bg: #d3e8ea;
+  --st-done-fg: #3b652c;
+  --st-done-bg: #dcebd2;
+}
+
+/* 테마: Cocoa Latte — 크림 #F1EDD9 배경 + 코코아 브라운 #70523D 포인트 */
+:root[data-theme="latte"] {
+  color-scheme: light;
+  --bg: #f1edd9;
+  --panel: #faf8f1;
+  --panel-2: #e0d9c5;
+  --panel-light: #f7f5e9;
+  --green: #70523d;
+  --green-dark: #543e2e;
+  --text: #16100c;
+  --muted: #453326;
+  --line: #d1c6b2;
+  --accent: #70523d;
+  --danger: #a4483b;
+  --danger-line: #c79282;
+  --danger-strong: #a4483b;
+  --on-accent: #ffffff;
+  --input-line: #c5b8a4;
+  --placeholder: #a18d78;
+  --sep: #b7a793;
+  --th-text: #493528;
+  --row-line: #ded6c2;
+  --bar-bg: #dad1bd;
+  --bar: #70523d;
   --st-before-fg: #85600f;
   --st-before-bg: #f3e4bd;
   --st-booked-fg: #2c6064;
@@ -1134,6 +1295,35 @@ button:hover { opacity: 0.82; }
   font-size: 12px;
 }
 
+/* 접고 펼치는 삼각형 버튼 */
+.collapse-btn {
+  flex: none;
+  width: 34px;
+  height: 30px;
+  margin-top: 20px;
+  margin-bottom: 13px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.collapse-btn span {
+  display: inline-block;
+  transition: transform 0.18s;
+}
+
+.collapse-btn[aria-expanded="false"] span { transform: rotate(-90deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .collapse-btn span { transition: none; }
+}
+
+.theme-box[hidden] { display: none; }
+
 /* 테마 설정 */
 .theme-box {
   padding: 12px;
@@ -1144,7 +1334,7 @@ button:hover { opacity: 0.82; }
 
 .theme-list {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -1391,14 +1581,11 @@ dialog p {
   padding: 13px 14px;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--line);
   border-radius: 0;
   color: var(--text);
   font-weight: normal;
   text-align: left;
 }
-
-.notice-item:last-child { border-bottom: 0; }
 
 .notice-item-main {
   display: flex;
@@ -1692,9 +1879,13 @@ dialog .dialog-note {
   <button type="button" class="pager-btn" id="pageOlder">이전 기록 ›</button>
 </nav>
 
-<div class="section-title">테마 설정</div>
+<div class="section-heading">
+  <div class="section-title">테마 설정</div>
+  <button type="button" class="collapse-btn" id="themeToggle"
+    aria-expanded="true" aria-controls="themeBox" aria-label="테마 설정 접기"><span aria-hidden="true">▼</span></button>
+</div>
 
-<div class="theme-box">
+<div class="theme-box" id="themeBox">
   <div class="theme-list" id="themeList" role="radiogroup" aria-label="테마 선택"></div>
 </div>
 
@@ -3102,10 +3293,14 @@ const DEFAULT_THEME = "white"; /* 처음 들어왔을 때의 테마 */
 const THEMES = [
   { id: "white", name: "화이트", bg: "#ffffff", point: "#222222" },
   { id: "black", name: "검정", bg: "#000000", point: "#eeeeee" },
-  { id: "default", name: "웜 다크", bg: "#1c1b19", point: "#c0b39c" },
-  { id: "light", name: "크림", bg: "#f4f0e8", point: "#7a6a4f" },
   { id: "cherry", name: "Cherry Cream", bg: "#faf3ef", point: "#b77c8b" },
-  { id: "sage", name: "Sage Paper", bg: "#f1f3ea", point: "#788b6a" }
+  { id: "sage", name: "Sage Paper", bg: "#f1f3ea", point: "#788b6a" },
+  { id: "sky", name: "Sky Paper", bg: "#eef4f8", point: "#648aab" },
+  { id: "slate", name: "Slate Mist", bg: "#50586c", point: "#dce2f0" },
+  { id: "latte", name: "Cocoa Latte", bg: "#f1edd9", point: "#70523d" },
+  { id: "blush", name: "Blush Blue", bg: "#ffdfde", point: "#6a7ba2" },
+  { id: "plum", name: "Plum Sage", bg: "#acc7b4", point: "#331b3f" },
+  { id: "teal", name: "Deep Teal", bg: "#f0edcc", point: "#02343f" }
 ];
 
 function currentTheme() {
@@ -3140,6 +3335,29 @@ $("themeList").addEventListener("click", function(e) {
   const btn = e.target.closest("button[data-theme-id]");
   if (btn) applyTheme(btn.dataset.themeId);
 });
+
+/* 테마 설정 접기/펼치기 (선택은 기억함) */
+(function setupThemeToggle() {
+  const toggle = $("themeToggle");
+  const box = $("themeBox");
+  const KEY = "gigThemeOpen";
+
+  function setOpen(open) {
+    box.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "테마 설정 접기" : "테마 설정 펼치기");
+  }
+
+  let open = true;
+  try { open = localStorage.getItem(KEY) !== "0"; } catch (error) {}
+  setOpen(open);
+
+  toggle.addEventListener("click", function() {
+    open = !open;
+    setOpen(open);
+    try { localStorage.setItem(KEY, open ? "1" : "0"); } catch (error) {}
+  });
+})();
 
 /* ---------- 화면 전환 (기록 / 캘린더) ---------- */
 
