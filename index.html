@@ -1790,6 +1790,25 @@ dialog .dialog-note {
   .stats-table th { font-size: 12px; }
   .stat-number { font-size: 19px; }
 }
+.cal-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.cal-summary b {
+  margin-left: 3px;
+  color: var(--text);
+}
+
+.cal-summary[hidden] { display: none; }
 </style>
 </head>
 
@@ -1944,6 +1963,13 @@ dialog .dialog-note {
 
   <div class="section-title" id="calMonthTitle"></div>
   <div class="cal-month-list" id="calMonthList"></div>
+
+  <!-- ★ 추가: 이 달 요약 한 줄 -->
+  <div class="cal-summary" id="calSummary">
+    <span>관람 <b id="calStatWatched">0회</b></span>
+    <span>예정 <b id="calStatUpcoming">0건</b></span>
+    <span>지출 <b id="calStatSpent">₩0</b></span>
+  </div>
 
 </div>
 
@@ -3679,6 +3705,19 @@ function renderCalendar() {
 
   renderCalendarDetail();
   renderCalendarMonthList(byDate, prefix);
+  renderCalendarStats(byDate);   /* ★ 추가 */
+}
+
+/* ★ 추가: 이 달 요약 (관람 횟수는 '관람 완료'만, 지출은 모든 기록) */
+function renderCalendarStats(byDate) {
+  const list = Object.values(byDate).flat();
+  const watched = list.filter(isWatched).length;
+
+  $("calSummary").hidden = list.length === 0;
+
+  $("calStatWatched").textContent = `${watched}회`;
+  $("calStatUpcoming").textContent = `${list.length - watched}건`;
+  $("calStatSpent").textContent = won(list.reduce((sum, gig) => sum + gig.price, 0));
 }
 
 /* 이 달에 기록된 공연을 날짜순으로 전부 보여줌 (누르면 그 날짜가 선택됨) */
