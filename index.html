@@ -2001,7 +2001,6 @@ dialog .dialog-note {
     <button type="button" class="notice-back" id="noticeBack">‹ 목록</button>
     <p class="notice-detail-title">
       <strong id="noticeDetailTitle"></strong>
-      <small id="noticeDetailDate"></small>
     </p>
     <div id="noticeBody"></div>
   </div>
@@ -2827,9 +2826,14 @@ function gigCardHTML(gig) {
              title="눌러서 '${escapeHTML(next)}'로 변경">${statusText}</button>`
         : `<span class="status ${statusClass}">${statusText}</span>`;
 
-      /* D-day: 오늘 이후 공연만, 관람 완료는 표시하지 않음 */
-      const dday = diff >= 0 && gig.status !== "관람 완료"
-        ? `<span class="dday${diff === 0 ? " today" : ""}">${diff === 0 ? "D-DAY" : "D-" + diff}</span>`
+      /* D-day: 오늘 이후 공연만, 관람 완료는 표시하지 않음
+         - 당일(D-DAY)은 공연명 옆, 그 외(D-숫자)는 상태 칩 왼쪽 */
+      const showDday = diff >= 0 && gig.status !== "관람 완료";
+      const ddayTitle = showDday && diff === 0
+        ? `<span class="dday today">D-DAY</span>`
+        : "";
+      const ddayChip = showDday && diff > 0
+        ? `<span class="dday">D-${diff}</span>`
         : "";
 
       /* 공연일이 지났는데 관람 완료가 아니면 힌트 */
@@ -2847,10 +2851,11 @@ function gigCardHTML(gig) {
           <div class="gig-top">
             <div class="gig-title-wrap">
               <div class="gig-artist" title="${title}">${title}</div>
-              ${dday}
+              ${ddayTitle}
             </div>
 
             <div class="gig-top-right">
+              ${ddayChip}
               ${chip}
 
               <div class="gig-actions">
@@ -3734,7 +3739,6 @@ renderThemes();
     {
       id: "storage-1",
       title: "공지사항",
-      date: "26.11.18",
       summary: "저장 안내 · 이용 방법",
       body: `
 <p class="tip-heading">저장 안내</p>
@@ -3757,21 +3761,17 @@ renderThemes();
   </ul>`
     },
     {
-      id: "update-1",
-      title: "업데이트 안내",
-      date: "26.11.18",
-      summary: "새로 추가된 기능",
+      id: "report-1",
+      title: "오류 제보 및 요청 사항",
+      summary: "오류 제보 · 기능 요청",
       body: `
-<ul class="tip-list">
-    <li><b>통계 탭</b>: 전체 통계, 월별 지출, 밴드별 관람 횟수를 별도 화면으로 분리했습니다. 월이나 밴드 이름을 누르면 해당 기록으로 바로 이동합니다.</li>
-    <li><b>검색</b>: 밴드명, 공연명, 장소, 연도(예: 2025)로 기록을 검색할 수 있습니다.</li>
-    <li><b>상태 필터</b>: 전체 / 예매 전 / 예매 완료 / 관람 완료별로 모아 볼 수 있습니다.</li>
-    <li><b>정렬</b>: 최신순, 오래된순, 가격 높은순, 가격 낮은순을 지원합니다.</li>
-    <li><b>10개씩 보기</b>: 기록이 10개씩 나뉘며, 하단 화살표로 이전 기록을 확인할 수 있습니다.</li>
-    <li><b>캘린더 월별 목록</b>: 캘린더 하단에서 해당 월의 공연을 한눈에 볼 수 있습니다.</li>
-    <li><b>화면 넘기기</b>: 화면을 좌우로 밀어 기록 · 캘린더 · 통계 화면을 이동할 수 있습니다.</li>
-    <li>디데이가 예매 상태 옆이 아닌 공연명 옆에 표시됩니다.</li>
-  </ul>`
+<p class="tip-text">
+    오류 제보, 수정 및 기능 추가 요청, 테마 추가 요청 등은 여기로 편하게 말씀해 주세요!
+  </p>
+  <p class="tip-text">
+    <a href="https://spin-spin.com/ilsuzx?v=1794814977672" target="_blank" rel="noopener noreferrer"
+       style="color: var(--green); text-decoration: underline; word-break: break-all;">오류 제보 및 요청 사항 남기기 ›</a>
+  </p>`
     }
   ];
 
@@ -3823,10 +3823,10 @@ renderThemes();
 
     $("noticeItems").innerHTML = NOTICES.map(n => `
       <button type="button" class="notice-item" data-notice="${n.id}"
-        aria-label="${n.title} ${n.date}${isUnread(n.id) ? ", 새 공지" : ""}">
+        aria-label="${n.title}${isUnread(n.id) ? ", 새 공지" : ""}">
         <span class="notice-new${isUnread(n.id) ? "" : " read"}" aria-hidden="true"></span>
         <span class="notice-item-main">
-          <span class="notice-item-title">${n.title} <small>(${n.date})</small></span>
+          <span class="notice-item-title">${n.title}</span>
           <span class="notice-item-sub">${n.summary}</span>
         </span>
         <span class="notice-go" aria-hidden="true">›</span>
@@ -3842,7 +3842,6 @@ renderThemes();
     updateBadge();
 
     $("noticeDetailTitle").textContent = notice.title;
-    $("noticeDetailDate").textContent = `(${notice.date})`;
     $("noticeBody").innerHTML = notice.body;
 
     listView.hidden = true;
