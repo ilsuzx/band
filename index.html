@@ -619,6 +619,9 @@ button:hover { opacity: 0.82; }
   font-weight: bold;
 }
 
+#yearChips { margin: 0 0 12px; }
+#yearChips[hidden] { display: none; }
+
 .filter-meta {
   display: flex;
   align-items: center;
@@ -902,6 +905,12 @@ button:hover { opacity: 0.82; }
   border-radius: 6px;
   color: var(--muted);
   font-size: 12px;
+}
+
+.gig-hint.error {
+  border-style: solid;
+  border-color: var(--danger-line);
+  color: var(--danger);
 }
 
 .gig-hint span {
@@ -1560,7 +1569,7 @@ dialog p {
   overflow-y: auto;
 }
 
-/* 공지함 (공지 목록) */
+/* 공지함 (공지 목록): 공지마다 따로 테두리를 두르고, 사이 구분선은 없앰 */
 .notice-box-title {
   margin: 0 0 12px !important;
   font-size: 15px;
@@ -1927,6 +1936,7 @@ dialog .dialog-note {
 <div id="viewStats" class="view" hidden>
 
 <div class="section-title">전체 통계</div>
+<div class="filter-chips" id="yearChips" role="group" aria-label="연도 선택" hidden></div>
 
 <div class="table-wrap">
 <table class="stats-table">
@@ -2126,6 +2136,13 @@ function formatDateWithWeekday(dateString) {
 function weekdayText(dateString) {
   const [year, month, day] = dateString.split("-").map(Number);
   return WEEKDAYS[new Date(year, month - 1, day).getDay()] + "요일";
+}
+
+/* 아직 오지 않은 날짜의 공연을 '관람 완료'로 둘 수는 없음 (오늘 공연은 가능) */
+const FUTURE_DONE_MSG = "아직 오지 않은 공연은 '관람 완료'로 저장할 수 없어요. 날짜나 상태를 확인해 주세요.";
+
+function isFutureDone(date, status) {
+  return status === "관람 완료" && isValidDate(date) && daysUntil(date) > 0;
 }
 
 /* 오늘 날짜 (로컬 시간대 기준, YYYY-MM-DD) */
@@ -2422,6 +2439,12 @@ els.form.addEventListener("submit", function(e) {
     return;
   }
 
+  if (isFutureDone(v.date, v.status)) {
+    showToast(FUTURE_DONE_MSG, true);
+    els.status.focus();
+    return;
+  }
+
   if (v.priceValue === "" || !Number.isSafeInteger(price) || price < 0) {
     showToast("가격은 0 이상의 정수로 입력해 주세요.", true);
     els.price.focus();
@@ -2528,6 +2551,11 @@ els.price.addEventListener("input", function() {
 function setStatus(id, status) {
   const gig = gigs.find(g => g.id === id);
   if (!gig || gig.status === status) return;
+
+  if (isFutureDone(gig.date, status)) {
+    showToast(FUTURE_DONE_MSG, true);
+    return;
+  }
 
   const previous = gig.status;
   gig.status = status;
@@ -2637,6 +2665,7 @@ function handleGigClick(e, fromCalendar) {
   if (action === "delete") deleteGig(id);
   if (action === "advance") advanceStatus(id);
   if (action === "mark-done") setStatus(id, "관람 완료");
+  if (action === "mark-booked") setStatus(id, "예매 완료");
   if (action === "add-on-date") addOnDate(btn.dataset.date);
 }
 
@@ -2849,6 +2878,16 @@ function gigCardHTML(gig) {
            </div>`
         : "";
 
+      /* 아직 오지 않은 공연인데 관람 완료로 되어 있으면 오류 표시 */
+      const errorHint = isFutureDone(gig.date, gig.status)
+        ? `<div class="gig-hint error" role="alert">
+             <span>공연일이 아직 안 지났는데 '관람 완료'로 되어 있어요. 날짜나 상태를 확인해 주세요.</span>
+             <button type="button" class="small-btn delete-btn"
+               data-action="mark-booked" data-id="${safeId}"
+               aria-label="${label} 예매 완료로 변경">예매 완료로 변경</button>
+           </div>`
+        : "";
+
       return `
         <div class="gig-card${isEditing ? " editing" : ""}">
           <div class="gig-top">
@@ -2887,6 +2926,7 @@ function gigCardHTML(gig) {
             <div class="gig-price">${won(gig.price)}</div>
           </div>
           ${hint}
+          ${errorHint}
         </div>
       `;
 }
@@ -2899,9 +2939,9 @@ const isWatched = gig => gig.status === WATCHED;
 
 /* 전체 통계 */
 function renderTotals() {
-  const total = gigs.reduce((sum, gig) => sum + gig.price, 0);
-
-  const watched = gigs.filter(isWatched).length;
+  const list = statsGigs();
+  const total = list.reduce((sum, gig) => sum + gig.price, 0);
+  const watched = list.filter(isWatched).length;
 
   els.totalGigs.textContent = watched;
   els.totalSpent.textContent = won(total);
@@ -2913,7 +2953,7 @@ let monthsExpanded = false;
 function renderMonthly() {
   const months = {};
 
-  gigs.forEach(gig => {
+  statsGigs().forEach(gig => {
     const month = gig.date.slice(0, 7);
 
     if (!months[month]) months[month] = { count: 0, price: 0 };
@@ -2999,7 +3039,7 @@ function renderArtists() {
   const artists = {};
 
   /* 관람 완료한 공연만, 여러 팀이 나온 공연은 라인업의 팀마다 1회씩 집계 */
-  gigs.filter(isWatched).forEach(gig => {
+  statsGigs().filter(isWatched).forEach(gig => {
     gig.artists.forEach(name => {
       artists[name] = (artists[name] || 0) + 1;
     });
@@ -3063,7 +3103,42 @@ els.artistToggle.addEventListener("click", function() {
   renderArtists();
 });
 
+let statsYear = "all";
+
+function statsGigs() {
+  return statsYear === "all"
+    ? gigs
+    : gigs.filter(g => g.date.startsWith(statsYear + "-"));
+}
+
+function renderYearChips() {
+  const box = $("yearChips");
+  const years = [...new Set(gigs.map(g => g.date.slice(0, 4)))].sort().reverse();
+
+  if (years.length < 2 || !years.includes(statsYear)) statsYear = "all";
+
+  box.hidden = years.length < 2;
+
+  box.innerHTML = ["all", ...years].map(y => `
+    <button type="button" class="filter-chip" data-year="${y}"
+      aria-pressed="${y === statsYear}">${y === "all" ? "전체" : y + "년"}</button>
+  `).join("");
+}
+
+$("yearChips").addEventListener("click", function(e) {
+  const chip = e.target.closest("button[data-year]");
+  if (!chip) return;
+
+  statsYear = chip.dataset.year;
+  monthsExpanded = false;
+  artistsExpanded = false;
+  expandedRanks.clear();
+
+  renderStats();
+});
+
 function renderStats() {
+  renderYearChips();
   renderTotals();
   renderMonthly();
   renderArtists();
@@ -3445,7 +3520,7 @@ els.monthly.addEventListener("keydown", function(e) {
 
 els.artists.addEventListener("click", function(e) {
   const btn = e.target.closest("button[data-artist]");
-  if (btn) showInList(btn.dataset.artist, "관람 완료");
+  if (btn) showInList(btn.dataset.artist + (statsYear !== "all" ? " " + statsYear : ""), "관람 완료");
 });
 
 /* 좌우로 밀어서 화면 전환: 왼쪽으로 밀면 다음 화면(기록→캘린더→통계), 오른쪽으로 밀면 이전 화면 */
