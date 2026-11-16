@@ -1599,6 +1599,21 @@ dialog p {
   text-align: left;
 }
 
+/* 공지함이 열릴 때 첫 항목에 자동으로 생기는 검은 포커스 테두리 제거 */
+.notice-item:focus-visible { outline: none; }
+
+/* 덜 중요한 공지(업데이트 안내): 조금 더 연한 배경에 점선 테두리 */
+.notice-item.minor {
+  padding: 10px 14px;
+  background: var(--panel-2);
+  border-style: dashed;
+}
+
+.notice-item.minor .notice-item-title {
+  font-size: 13px;
+  font-weight: normal;
+}
+
 .notice-item-main {
   display: flex;
   flex: 1;
@@ -3850,6 +3865,16 @@ renderThemes();
     <a href="https://spin-spin.com/ilsuzx?v=1794814977672" target="_blank" rel="noopener noreferrer"
        style="color: var(--green); text-decoration: underline; word-break: break-all;">오류 제보 및 요청 사항 남기기 ›</a>
   </p>`
+    },
+    {
+      id: "update-1",
+      minor: true,
+      title: "업데이트 안내 (26.11.16)",
+      summary: "통계 연도별 보기 추가",
+      body: `
+<p class="tip-text">
+    통계 화면에 연도 선택 기능이 추가되었습니다.
+  </p>`
     }
   ];
 
@@ -3900,7 +3925,7 @@ renderThemes();
     listView.hidden = false;
 
     $("noticeItems").innerHTML = NOTICES.map(n => `
-      <button type="button" class="notice-item" data-notice="${n.id}"
+      <button type="button" class="notice-item${n.minor ? " minor" : ""}" data-notice="${n.id}"
         aria-label="${n.title}${isUnread(n.id) ? ", 새 공지" : ""}">
         <span class="notice-new${isUnread(n.id) ? "" : " read"}" aria-hidden="true"></span>
         <span class="notice-item-main">
@@ -3968,7 +3993,7 @@ renderThemes();
   } catch (error) {}
 
   if (firstVisit) {
-    showDetail(NOTICES[0].id);
+    showDetail("storage-1");
     openDialog();
   } else {
     showList();
