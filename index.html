@@ -414,6 +414,126 @@ button:hover { opacity: 0.82; }
 }
 
 /* 공연 목록 */
+/* 검색 + 상태 필터 */
+.list-filter {
+  margin-bottom: 10px;
+}
+
+.search-input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filter-chips::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  flex: none;
+  padding: 7px 13px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.filter-chip[aria-pressed="true"] {
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--on-accent);
+  font-weight: bold;
+}
+
+.filter-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.filter-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sort-select {
+  flex: none;
+  width: auto;
+  height: 34px;
+  margin-left: auto;
+  padding: 6px 26px 6px 11px;
+  border-radius: 17px;
+  background-color: var(--panel);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.filter-reset {
+  padding: 3px 9px;
+  background: transparent;
+  border: 1px solid var(--green-dark);
+  border-radius: 12px;
+  color: var(--green);
+  font-size: 11px;
+}
+
+/* 기록 10개씩 끊어 보기 */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pager[hidden] { display: none; }
+
+.pager-btn {
+  flex: none;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 12px;
+}
+
+.pager-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pager-info {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
 .gig-list {
   width: 100%;
   background: var(--panel);
@@ -438,6 +558,14 @@ button:hover { opacity: 0.82; }
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-width: 0;
+}
+
+.gig-title-wrap {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 7px;
   min-width: 0;
 }
 
@@ -657,6 +785,28 @@ button:hover { opacity: 0.82; }
   overflow-wrap: anywhere;
 }
 
+.stats-hint {
+  margin: 8px 2px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* 통계에서 누르면 기록으로 이동하는 항목 */
+.monthly-table tbody tr[data-month] { cursor: pointer; }
+.monthly-table tbody tr[data-month]:active { background: var(--panel-2); }
+
+.name-link {
+  display: inline;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
 /* 같은 순위 밴드 이름 줄 */
 .rank-names {
   text-align: left;
@@ -691,6 +841,7 @@ button:hover { opacity: 0.82; }
 
 .view-tab {
   flex: 1;
+  min-width: 0;
   padding: 10px;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -887,6 +1038,81 @@ button:hover { opacity: 0.82; }
   display: inline-flex;
   align-items: center;
   gap: 5px;
+}
+
+/* 이 달의 공연 전체 목록 */
+.cal-month-list {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+}
+
+.cal-month-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--text);
+  font-weight: normal;
+  text-align: left;
+}
+
+.cal-month-row:last-child { border-bottom: 0; }
+
+.cal-month-row.selected { background: var(--panel-2); }
+
+.cm-date {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  width: 30px;
+  line-height: 1.2;
+}
+
+.cm-date b { font-size: 16px; }
+.cm-date small { color: var(--muted); font-size: 10px; }
+.cm-date.weekend b,
+.cm-date.weekend small { color: var(--danger); }
+
+.cm-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cm-title {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-sub {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cm-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
 }
 
 .cal-empty {
@@ -1131,13 +1357,100 @@ dialog p {
 .tip-list li.tip-sub {
   color: var(--muted);
   font-size: 12px;
+}
+
+/* • 없이 문장으로 보여주는 목록 */
+#tipDialog .tip-list.tip-plain {
+  padding-left: 0;
   list-style: none;
-  margin-left: -16px;
 }
 
 #tipDialog {
   max-height: calc(100% - 40px);
   overflow-y: auto;
+}
+
+/* 공지함 (공지 목록) */
+.notice-box-title {
+  margin: 0 0 12px !important;
+  font-size: 15px;
+}
+
+.notice-items {
+  margin: 0 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.notice-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 14px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--text);
+  font-weight: normal;
+  text-align: left;
+}
+
+.notice-item:last-child { border-bottom: 0; }
+
+.notice-item-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.notice-item-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.notice-item-sub {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.notice-new {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+}
+
+.notice-new.read { visibility: hidden; }
+
+.notice-go {
+  flex: none;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.notice-back {
+  margin: 0 0 12px;
+  padding: 4px 0;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+#tipDialog .notice-detail-title {
+  margin: 0 0 14px;
+}
+
+.notice-detail-title small {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 /* 단어 중간에서 끊기지 않고 띄어쓰기 단위로 줄바꿈 */
@@ -1149,6 +1462,15 @@ dialog p {
 }
 
 #tipDialog .tip-list { padding-left: 16px; }
+
+/* 공지가 길어도 닫기 버튼은 아래에 계속 보이게 */
+#tipDialog .dialog-buttons {
+  position: sticky;
+  bottom: -20px;
+  margin: 0 -20px -20px;
+  padding: 12px 20px 20px;
+  background: var(--panel);
+}
 
 .tip-steps {
   margin: 0 0 18px;
@@ -1213,6 +1535,7 @@ dialog .dialog-note {
   }
 
   input, select { height: 44px; }
+  .sort-select { height: 34px; }
 
   .gig-card { padding: 12px 11px; }
 
@@ -1263,6 +1586,7 @@ dialog .dialog-note {
 <nav class="view-tabs" aria-label="화면 전환">
   <button type="button" class="view-tab" id="tabList" data-view="list" aria-pressed="true">기록</button>
   <button type="button" class="view-tab" id="tabCal" data-view="cal" aria-pressed="false">캘린더</button>
+  <button type="button" class="view-tab" id="tabStats" data-view="stats" aria-pressed="false">통계</button>
   <button type="button" class="notice-btn" id="noticeBtn" aria-label="공지사항 보기" title="공지사항">📢</button>
 </nav>
 
@@ -1322,7 +1646,7 @@ dialog .dialog-note {
 </form>
 </div>
 
-<div class="section-heading">
+<div class="section-heading" id="listTop">
   <div class="section-title">공연 및 행사 기록</div>
   <div class="heading-actions">
     <button type="button" class="export-btn" id="csvBtn">CSV ↓</button>
@@ -1333,61 +1657,40 @@ dialog .dialog-note {
 <input type="file" id="importFile" accept=".json,application/json" class="visually-hidden" tabindex="-1" aria-label="백업 파일 선택">
 <button type="button" class="text-link" id="textBackupBtn">파일 저장이 안 될 때 → 텍스트로 백업/복원</button>
 
+<div class="list-filter">
+  <input type="search" id="searchInput" class="search-input"
+    placeholder="밴드, 공연명, 장소, 연도로 검색"
+    autocomplete="off" autocapitalize="off" spellcheck="false"
+    enterkeyhint="search" aria-label="공연 기록 검색">
+
+  <div class="filter-chips" role="group" aria-label="상태 필터">
+    <button type="button" class="filter-chip" data-filter="all" aria-pressed="true">전체</button>
+    <button type="button" class="filter-chip" data-filter="예매 전" aria-pressed="false">예매 전</button>
+    <button type="button" class="filter-chip" data-filter="예매 완료" aria-pressed="false">예매 완료</button>
+    <button type="button" class="filter-chip" data-filter="관람 완료" aria-pressed="false">관람 완료</button>
+  </div>
+
+  <div class="filter-meta">
+    <div class="filter-count" id="filterCount" aria-live="polite"></div>
+
+    <select id="sortSelect" class="sort-select" aria-label="정렬">
+      <option value="date-desc">최신순</option>
+      <option value="date-asc">오래된순</option>
+      <option value="price-desc">가격 높은순</option>
+      <option value="price-asc">가격 낮은순</option>
+    </select>
+  </div>
+</div>
+
 <div class="table-wrap">
   <div id="gigList" class="gig-list"></div>
 </div>
 
-<div class="section-title">월별 지출</div>
-
-<div class="table-wrap">
-<table class="monthly-table">
-  <thead>
-    <tr>
-      <th scope="col" style="width:22%">월</th>
-      <th scope="col" style="width:17%">관람 횟수</th>
-      <th scope="col">지출 비율</th>
-      <th scope="col" style="width:27%">지출 금액</th>
-    </tr>
-  </thead>
-  <tbody id="monthlyStats"></tbody>
-</table>
-<button type="button" class="more-btn" id="monthlyToggle" aria-expanded="false" aria-controls="monthlyStats" hidden></button>
-</div>
-
-<div class="section-title">밴드별 관람 횟수</div>
-
-<div class="table-wrap">
-<table class="artist-table">
-  <thead>
-    <tr>
-      <th scope="col" style="width:18%">순위</th>
-      <th scope="col">밴드</th>
-      <th scope="col" style="width:28%">관람 횟수</th>
-    </tr>
-  </thead>
-  <tbody id="artistStats"></tbody>
-</table>
-<button type="button" class="more-btn" id="artistToggle" aria-expanded="false" aria-controls="artistStats" hidden></button>
-</div>
-
-<div class="section-title">전체 통계</div>
-
-<div class="table-wrap">
-<table class="stats-table">
-  <thead>
-    <tr>
-      <th scope="col">관람 공연</th>
-      <th scope="col">총 지출</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><span class="stat-number" id="totalGigs">0</span></td>
-      <td><span class="stat-number" id="totalSpent">₩0</span></td>
-    </tr>
-  </tbody>
-</table>
-</div>
+<nav class="pager" id="pager" aria-label="기록 페이지 이동" hidden>
+  <button type="button" class="pager-btn" id="pageNewer">‹ 최신 기록</button>
+  <span class="pager-info" id="pageInfo" aria-live="polite"></span>
+  <button type="button" class="pager-btn" id="pageOlder">이전 기록 ›</button>
+</nav>
 
 <div class="section-title">테마 설정</div>
 
@@ -1422,6 +1725,67 @@ dialog .dialog-note {
   <div class="section-title" id="calDetailTitle"></div>
   <div id="calDetail"></div>
 
+  <div class="section-title" id="calMonthTitle"></div>
+  <div class="cal-month-list" id="calMonthList"></div>
+
+</div>
+
+<div id="viewStats" class="view" hidden>
+
+<div class="section-title">전체 통계</div>
+
+<div class="table-wrap">
+<table class="stats-table">
+  <thead>
+    <tr>
+      <th scope="col">관람 공연</th>
+      <th scope="col">총 지출</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="stat-number" id="totalGigs">0</span></td>
+      <td><span class="stat-number" id="totalSpent">₩0</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="section-title">월별 지출</div>
+
+<div class="table-wrap">
+<table class="monthly-table">
+  <thead>
+    <tr>
+      <th scope="col" style="width:22%">월</th>
+      <th scope="col" style="width:17%">관람 횟수</th>
+      <th scope="col">지출 비율</th>
+      <th scope="col" style="width:27%">지출 금액</th>
+    </tr>
+  </thead>
+  <tbody id="monthlyStats"></tbody>
+</table>
+<button type="button" class="more-btn" id="monthlyToggle" aria-expanded="false" aria-controls="monthlyStats" hidden></button>
+</div>
+<p class="stats-hint">월을 누르면 그 달의 공연 기록으로 이동해요.</p>
+
+<div class="section-title">밴드별 관람 횟수</div>
+
+<div class="table-wrap">
+<table class="artist-table">
+  <thead>
+    <tr>
+      <th scope="col" style="width:18%">순위</th>
+      <th scope="col">밴드</th>
+      <th scope="col" style="width:28%">관람 횟수</th>
+    </tr>
+  </thead>
+  <tbody id="artistStats"></tbody>
+</table>
+<button type="button" class="more-btn" id="artistToggle" aria-expanded="false" aria-controls="artistStats" hidden></button>
+</div>
+<p class="stats-hint">밴드 이름을 누르면 관람한 공연 기록으로 이동해요.</p>
+
 </div>
 
 </div>
@@ -1436,27 +1800,20 @@ dialog .dialog-note {
   </div>
 </dialog>
 
-<dialog id="tipDialog" aria-labelledby="tipTitle">
-  <p id="tipTitle"><strong>공지사항 (26.11.18)</strong></p>
+<dialog id="tipDialog" aria-label="공지함">
+  <div id="noticeListView">
+    <p class="notice-box-title"><strong>공지함</strong></p>
+    <div id="noticeItems" class="notice-items"></div>
+  </div>
 
-  <p class="tip-heading">저장 안내</p>
-  <p class="tip-text">
-    입력한 기록은 서버가 아닌 <b>개인 브라우저</b>에 저장됩니다.
-    브라우저 쿠키·사이트 데이터를 삭제하면 기록이 지워질 수 있습니다.
-    <b>시크릿 모드</b>에서는 기록이 저장되지 않으니, 반드시 해제 후 이용해 주세요.
-  </p>
-
-  <p class="tip-heading">링크로만 이용하는 경우</p>
-  <ul class="tip-list">
-    <li>홈 화면에 추가하지 않고 링크로만 이용하실 경우, <b>Google 혹은 Naver</b> 앱 이용을 권장합니다.</li>
-    <li class="tip-sub">Safari에는 사용자가 특정 웹사이트와 7일 동안 상호작용하지 않으면 해당 사이트의 쿠키와 데이터를 자동으로 삭제하는 정책이 있습니다.</li>
-  </ul>
-
-  <p class="tip-heading">웹앱으로 이용하는 방법</p>
-  <ul class="tip-list">
-    <li><b>Safari</b>: 공유 → 홈 화면에 추가</li>
-    <li><b>삼성 인터넷</b>: 메뉴 → 현재 페이지 추가 → 홈 화면</li>
-  </ul>
+  <div id="noticeDetailView" hidden>
+    <button type="button" class="notice-back" id="noticeBack">‹ 목록</button>
+    <p class="notice-detail-title">
+      <strong id="noticeDetailTitle"></strong>
+      <small id="noticeDetailDate"></small>
+    </p>
+    <div id="noticeBody"></div>
+  </div>
 
   <div class="dialog-buttons">
     <button type="button" id="tipClose">닫기</button>
@@ -2094,18 +2451,166 @@ els.list.addEventListener("click", e => handleGigClick(e, false));
 
 /* ---------- 렌더링 ---------- */
 
+/* ---------- 검색 / 상태 필터 ---------- */
+
+let filterStatus = "all";
+let filterQuery = "";
+
+const SORTS = {
+  "date-desc": (a, b) => b.date.localeCompare(a.date),
+  "date-asc": (a, b) => a.date.localeCompare(b.date),
+  "price-desc": (a, b) => b.price - a.price || b.date.localeCompare(a.date),
+  "price-asc": (a, b) => a.price - b.price || b.date.localeCompare(a.date)
+};
+let sortMode = "date-desc";
+
+try {
+  const savedSort = localStorage.getItem("gigSort");
+  if (SORTS[savedSort]) sortMode = savedSort;
+} catch (error) {}
+
+const PAGE_SIZE = 10;
+let listPage = 0; /* 0부터 시작, 0이 가장 최근 기록 */
+
+const searchInput = $("searchInput");
+const filterCount = $("filterCount");
+
+function normalizeText(value) {
+  return String(value).normalize("NFC").toLowerCase();
+}
+
+/* 띄어쓰기로 나눈 검색어가 모두 (밴드·공연명·장소·날짜) 어딘가에 들어 있으면 일치 */
+function matchesQuery(gig, tokens) {
+  if (tokens.length === 0) return true;
+
+  const haystack = normalizeText(
+    [gig.artists.join(" "), gig.artist, gig.name || "", gig.venue || "", gig.date].join(" ")
+  );
+
+  return tokens.every(token => haystack.includes(token));
+}
+
+function filteredGigs() {
+  const tokens = normalizeText(filterQuery).split(/\s+/).filter(Boolean);
+
+  return gigs.filter(gig =>
+    (filterStatus === "all" || gig.status === filterStatus) &&
+    matchesQuery(gig, tokens)
+  );
+}
+
+function isFiltering() {
+  return filterStatus !== "all" || filterQuery.trim() !== "";
+}
+
+function resetFilter() {
+  listPage = 0;
+  filterStatus = "all";
+  filterQuery = "";
+  searchInput.value = "";
+  renderList();
+}
+
+function renderFilterUI(shown) {
+  document.querySelectorAll(".filter-chip").forEach(chip => {
+    chip.setAttribute("aria-pressed", String(chip.dataset.filter === filterStatus));
+  });
+
+  filterCount.innerHTML = isFiltering()
+    ? `<span>${shown}건 / 전체 ${gigs.length}건</span>
+       <button type="button" class="filter-reset" data-action="reset-filter">초기화</button>`
+    : "";
+}
+
+const pagerEl = $("pager");
+
+function renderPager(totalPages) {
+  pagerEl.hidden = totalPages <= 1;
+  if (totalPages <= 1) return;
+
+  $("pageInfo").textContent = `${listPage + 1} / ${totalPages}`;
+  $("pageNewer").disabled = listPage === 0;
+  $("pageOlder").disabled = listPage >= totalPages - 1;
+}
+
 function renderList() {
   if (gigs.length === 0) {
+    renderFilterUI(0);
+    renderPager(0);
     els.list.innerHTML =
       '<div class="empty">아직 기록된 공연이 없습니다.</div>';
     return;
   }
 
-  els.list.innerHTML = [...gigs]
-    .sort((a, b) => b.date.localeCompare(a.date))
+  const list = filteredGigs();
+
+  renderFilterUI(list.length);
+
+  if (list.length === 0) {
+    renderPager(0);
+    els.list.innerHTML =
+      '<div class="empty">조건에 맞는 공연이 없어요.</div>';
+    return;
+  }
+
+  /* 최근 기록부터 10개씩. 삭제 등으로 페이지 수가 줄면 마지막 페이지로 맞춤 */
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  listPage = Math.min(listPage, totalPages - 1);
+
+  renderPager(totalPages);
+
+  els.list.innerHTML = list
+    .sort(SORTS[sortMode])
+    .slice(listPage * PAGE_SIZE, (listPage + 1) * PAGE_SIZE)
     .map(gigCardHTML)
     .join("");
 }
+
+function goToPage(page) {
+  listPage = Math.max(0, page);
+  renderList();
+  $("listTop").scrollIntoView({ behavior: "smooth" });
+}
+
+$("pageNewer").addEventListener("click", () => goToPage(listPage - 1));
+$("pageOlder").addEventListener("click", () => goToPage(listPage + 1));
+
+/* 정렬: 최신순 / 오래된순 / 가격 높은순 / 가격 낮은순 (선택은 기억함) */
+const sortSelect = $("sortSelect");
+sortSelect.value = sortMode;
+
+sortSelect.addEventListener("change", function() {
+  if (!SORTS[sortSelect.value]) return;
+
+  sortMode = sortSelect.value;
+  try { localStorage.setItem("gigSort", sortMode); } catch (error) {}
+
+  listPage = 0;
+  renderList();
+});
+
+searchInput.addEventListener("input", function() {
+  filterQuery = searchInput.value;
+  listPage = 0;
+  renderList();
+});
+
+searchInput.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") searchInput.blur(); /* 모바일에서 키보드 닫기 */
+});
+
+filterCount.addEventListener("click", function(e) {
+  if (e.target.closest("button[data-action='reset-filter']")) resetFilter();
+});
+
+document.querySelector(".filter-chips").addEventListener("click", function(e) {
+  const chip = e.target.closest(".filter-chip");
+  if (!chip) return;
+
+  filterStatus = chip.dataset.filter;
+  listPage = 0;
+  renderList();
+});
 
 /* 공연 카드 하나의 HTML (기록 목록과 캘린더가 함께 사용) */
 function gigCardHTML(gig) {
@@ -2149,10 +2654,12 @@ function gigCardHTML(gig) {
       return `
         <div class="gig-card${isEditing ? " editing" : ""}">
           <div class="gig-top">
-            <div class="gig-artist" title="${title}">${title}</div>
+            <div class="gig-title-wrap">
+              <div class="gig-artist" title="${title}">${title}</div>
+              ${dday}
+            </div>
 
             <div class="gig-top-right">
-              ${dday}
               ${chip}
 
               <div class="gig-actions">
@@ -2195,7 +2702,9 @@ const isWatched = gig => gig.status === WATCHED;
 function renderTotals() {
   const total = gigs.reduce((sum, gig) => sum + gig.price, 0);
 
-  els.totalGigs.textContent = gigs.filter(isWatched).length;
+  const watched = gigs.filter(isWatched).length;
+
+  els.totalGigs.textContent = watched;
   els.totalSpent.textContent = won(total);
 }
 
@@ -2227,7 +2736,9 @@ function renderMonthly() {
 
   els.monthly.innerHTML = entries.length
     ? entries.map(([month, data], index) => `
-        <tr${index >= MONTHS_SHOWN && !monthsExpanded ? " hidden" : ""}>
+        <tr${index >= MONTHS_SHOWN && !monthsExpanded ? " hidden" : ""}
+            data-month="${escapeHTML(month)}" tabindex="0" role="button"
+            aria-label="${escapeHTML(month)} 공연 기록 보기">
           <td>${escapeHTML(month)}</td>
           <td>${data.count}회</td>
           <td>
@@ -2262,18 +2773,23 @@ let artistsExpanded = false;
 const expandedRanks = new Set();
 
 /* 같은 순위 팀이 많으면 앞의 몇 팀만 보이고 '외 N팀'을 눌러 펼침 */
+function artistLink(name) {
+  const safe = escapeHTML(name);
+  return `<button type="button" class="name-link" data-artist="${safe}" title="${safe} 관람 기록 보기">${safe}</button>`;
+}
+
 function rankNamesHTML(group) {
   const names = group.names;
 
-  if (names.length <= NAMES_PER_RANK) return names.map(escapeHTML).join(", ");
+  if (names.length <= NAMES_PER_RANK) return names.map(artistLink).join(", ");
 
   if (expandedRanks.has(group.count)) {
-    return names.map(escapeHTML).join(", ") +
+    return names.map(artistLink).join(", ") +
       ` <button type="button" class="rank-more" data-rank-count="${group.count}">접기</button>`;
   }
 
   /* 마지막 이름과 버튼을 한 덩어리로 묶어서 버튼이 아래 줄로 떨어지지 않게 */
-  const shown = names.slice(0, NAMES_PER_RANK).map(escapeHTML);
+  const shown = names.slice(0, NAMES_PER_RANK).map(artistLink);
   const last = shown.pop();
 
   return (shown.length ? shown.join(", ") + ", " : "") +
@@ -2627,17 +3143,21 @@ $("themeList").addEventListener("click", function(e) {
 
 /* ---------- 화면 전환 (기록 / 캘린더) ---------- */
 
+const VIEW_ORDER = ["list", "cal", "stats"];
+
 const viewEls = {
   list: $("viewList"),
-  cal: $("viewCal")
+  cal: $("viewCal"),
+  stats: $("viewStats")
 };
 const tabEls = {
   list: $("tabList"),
-  cal: $("tabCal")
+  cal: $("tabCal"),
+  stats: $("tabStats")
 };
 
 let currentView = "list";
-const viewScroll = { list: 0, cal: 0 };
+const viewScroll = { list: 0, cal: 0, stats: 0 };
 
 /* 현재 보이는 화면의 카드 영역 */
 function activeGigRoot() {
@@ -2647,6 +3167,8 @@ function activeGigRoot() {
 function switchView(view) {
   if (view === currentView || !viewEls[view]) return;
 
+  const forward = VIEW_ORDER.indexOf(view) > VIEW_ORDER.indexOf(currentView);
+
   viewScroll[currentView] = window.scrollY;
   currentView = view;
 
@@ -2655,21 +3177,52 @@ function switchView(view) {
     tabEls[key].setAttribute("aria-pressed", String(key === view));
   });
 
-  /* 캘린더는 오른쪽에서, 기록은 왼쪽에서 들어오는 느낌 */
+  /* 오른쪽 화면으로 갈 때는 오른쪽에서, 왼쪽 화면으로 갈 때는 왼쪽에서 들어오는 느낌 */
   const pane = viewEls[view];
   pane.classList.remove("enter-right", "enter-left");
   void pane.offsetWidth;
-  pane.classList.add(view === "cal" ? "enter-right" : "enter-left");
+  pane.classList.add(forward ? "enter-right" : "enter-left");
 
   if (view === "cal") renderCalendar();
 
-  window.scrollTo(0, view === "cal" ? 0 : viewScroll.list);
+  window.scrollTo(0, view === "list" ? viewScroll.list : 0);
 }
 
-tabEls.list.addEventListener("click", () => switchView("list"));
-tabEls.cal.addEventListener("click", () => switchView("cal"));
+VIEW_ORDER.forEach(key => tabEls[key].addEventListener("click", () => switchView(key)));
 
-/* 좌우로 밀어서 화면 전환: 왼쪽으로 밀면 캘린더, 오른쪽으로 밀면 기록 */
+/* 통계에서 눌러서 기록 화면의 검색 결과로 이동 */
+function showInList(query, status) {
+  filterQuery = query;
+  filterStatus = status;
+  listPage = 0;
+  searchInput.value = query;
+  renderList();
+
+  switchView("list");
+  $("listTop").scrollIntoView({ behavior: "smooth" });
+}
+
+els.monthly.addEventListener("click", function(e) {
+  const row = e.target.closest("tr[data-month]");
+  if (row) showInList(row.dataset.month, "all");
+});
+
+els.monthly.addEventListener("keydown", function(e) {
+  if (e.key !== "Enter" && e.key !== " ") return;
+
+  const row = e.target.closest("tr[data-month]");
+  if (!row) return;
+
+  e.preventDefault();
+  showInList(row.dataset.month, "all");
+});
+
+els.artists.addEventListener("click", function(e) {
+  const btn = e.target.closest("button[data-artist]");
+  if (btn) showInList(btn.dataset.artist, "관람 완료");
+});
+
+/* 좌우로 밀어서 화면 전환: 왼쪽으로 밀면 다음 화면(기록→캘린더→통계), 오른쪽으로 밀면 이전 화면 */
 let swipeStart = null;
 
 document.addEventListener("touchstart", function(e) {
@@ -2704,7 +3257,9 @@ document.addEventListener("touchend", function(e) {
   const selection = window.getSelection && window.getSelection().toString();
   if (selection) return;
 
-  switchView(dx < 0 ? "cal" : "list");
+  const index = VIEW_ORDER.indexOf(currentView) + (dx < 0 ? 1 : -1);
+
+  if (index >= 0 && index < VIEW_ORDER.length) switchView(VIEW_ORDER[index]);
 }, { passive: true });
 
 /* ---------- 캘린더 ---------- */
@@ -2722,7 +3277,9 @@ const calEls = {
   title: $("calTitle"),
   grid: $("calGrid"),
   detailTitle: $("calDetailTitle"),
-  detail: $("calDetail")
+  detail: $("calDetail"),
+  monthTitle: $("calMonthTitle"),
+  monthList: $("calMonthList")
 };
 
 let calYear = 0;
@@ -2806,6 +3363,48 @@ function renderCalendar() {
   calEls.grid.innerHTML = html;
 
   renderCalendarDetail();
+  renderCalendarMonthList(byDate, prefix);
+}
+
+/* 이 달에 기록된 공연을 날짜순으로 전부 보여줌 (누르면 그 날짜가 선택됨) */
+function renderCalendarMonthList(byDate, prefix) {
+  const list = Object.keys(byDate)
+    .sort()
+    .flatMap(date => byDate[date]);
+
+  calEls.monthTitle.innerHTML =
+    `${calMonth + 1}월 공연 ` +
+    (list.length ? `<small>${list.length}건</small>` : "");
+
+  if (list.length === 0) {
+    calEls.monthList.innerHTML =
+      '<div class="cal-empty">이 달은 기록된 공연이 없어요.</div>';
+    return;
+  }
+
+  calEls.monthList.innerHTML = list.map(gig => {
+    const day = Number(gig.date.slice(8, 10));
+    const dow = new Date(calYear, calMonth, day).getDay();
+    const title = escapeHTML(gigTitle(gig));
+    const status = escapeHTML(gig.status);
+    const dotClass = CAL_STATUS_CLASS[gig.status] || "before";
+    const sub = [artistShort(gig.artists), gig.venue].filter(Boolean).map(escapeHTML).join(" · ");
+
+    return `
+      <button type="button"
+        class="cal-month-row${gig.date === calSelected ? " selected" : ""}"
+        data-date="${escapeHTML(gig.date)}"
+        aria-label="${calMonth + 1}월 ${day}일 ${WEEKDAYS[dow]}요일 ${title}, ${status}">
+        <span class="cm-date${dow === 0 || dow === 6 ? " weekend" : ""}">
+          <b>${day}</b><small>${WEEKDAYS[dow]}</small>
+        </span>
+        <span class="cm-main">
+          <span class="cm-title">${title}</span>
+          <span class="cm-sub">${sub}</span>
+        </span>
+        <span class="cm-status"><i class="cal-dot ${dotClass}"></i>${status}</span>
+      </button>`;
+  }).join("");
 }
 
 /* 선택한 날짜의 공연 */
@@ -2844,6 +3443,16 @@ calEls.grid.addEventListener("click", function(e) {
 });
 
 calEls.detail.addEventListener("click", e => handleGigClick(e, true));
+
+/* 이 달 목록에서 공연을 누르면 그 날짜를 선택하고 위의 상세로 이동 */
+calEls.monthList.addEventListener("click", function(e) {
+  const row = e.target.closest("button[data-date]");
+  if (!row) return;
+
+  calSelected = row.dataset.date;
+  renderCalendar();
+  calEls.detailTitle.scrollIntoView({ behavior: "smooth" });
+});
 
 $("calPrev").addEventListener("click", () => calMove(-1));
 $("calNext").addEventListener("click", () => calMove(1));
@@ -2900,53 +3509,177 @@ render();
 renderThemes();
 
 /* 처음 들어왔을 때 '홈 화면에 추가' 안내 자동 표시 (홈 화면 앱이거나 '다시 보지 않기'면 자동 표시 안 함, 📢 버튼으로는 항상 열림) */
-(function setupInstallTip() {
-  /* 새 공지를 올릴 때는 이 번호만 올리면 됨 (예: 6 → 7). 읽지 않은 사람에게 점이 뜸 */
-  const NOTICE_VERSION = "6";
-  const SEEN_KEY = "gigNoticeSeen";
+(function setupNoticeBox() {
+  /* 새 공지를 올릴 때는 아래 목록에 항목을 추가하면 됨.
+     id를 새로 바꾸면(예: update-1 → update-2) 이미 읽은 사람에게도 다시 '새 공지' 점이 뜸. */
+  const NOTICES = [
+    {
+      id: "storage-1",
+      title: "공지사항",
+      date: "26.11.18",
+      summary: "저장 안내 · 이용 방법",
+      body: `
+<p class="tip-heading">저장 안내</p>
+  <p class="tip-text">
+    입력한 기록은 서버가 아닌 <b>개인 브라우저</b>에 저장됩니다.
+    브라우저 쿠키·사이트 데이터를 삭제하면 기록이 지워질 수 있습니다.
+    <b>시크릿 모드</b>에서는 기록이 저장되지 않으니, 반드시 해제 후 이용해 주세요.
+  </p>
+
+  <p class="tip-heading">링크로만 이용하는 경우</p>
+  <ul class="tip-list tip-plain">
+    <li>홈 화면에 추가하지 않고 링크로만 이용하실 경우, <b>Google 혹은 Naver</b> 앱 이용을 권장합니다.</li>
+    <li class="tip-sub">Safari에는 사용자가 특정 웹사이트와 7일 동안 상호작용하지 않으면 해당 사이트의 쿠키와 데이터를 자동으로 삭제하는 정책이 있습니다.</li>
+  </ul>
+
+  <p class="tip-heading">웹앱으로 이용하는 방법</p>
+  <ul class="tip-list">
+    <li><b>Safari</b>: 공유 → 홈 화면에 추가</li>
+    <li><b>삼성 인터넷</b>: 메뉴 → 현재 페이지 추가 → 홈 화면</li>
+  </ul>`
+    },
+    {
+      id: "update-1",
+      title: "업데이트 안내",
+      date: "26.11.18",
+      summary: "새로 추가된 기능",
+      body: `
+<ul class="tip-list">
+    <li><b>통계 탭</b>: 전체 통계, 월별 지출, 밴드별 관람 횟수를 별도 화면으로 분리했습니다. 월이나 밴드 이름을 누르면 해당 기록으로 바로 이동합니다.</li>
+    <li><b>검색</b>: 밴드명, 공연명, 장소, 연도(예: 2025)로 기록을 검색할 수 있습니다.</li>
+    <li><b>상태 필터</b>: 전체 / 예매 전 / 예매 완료 / 관람 완료별로 모아 볼 수 있습니다.</li>
+    <li><b>정렬</b>: 최신순, 오래된순, 가격 높은순, 가격 낮은순을 지원합니다.</li>
+    <li><b>10개씩 보기</b>: 기록이 10개씩 나뉘며, 하단 화살표로 이전 기록을 확인할 수 있습니다.</li>
+    <li><b>캘린더 월별 목록</b>: 캘린더 하단에서 해당 월의 공연을 한눈에 볼 수 있습니다.</li>
+    <li><b>화면 넘기기</b>: 화면을 좌우로 밀어 기록 · 캘린더 · 통계 화면을 이동할 수 있습니다.</li>
+    <li>디데이가 예매 상태 옆이 아닌 공연명 옆에 표시됩니다.</li>
+  </ul>`
+    }
+  ];
+
+  const SEEN_KEY = "gigNoticesSeen";
+  const OLD_SEEN_KEY = "gigNoticeSeen";
 
   const dialog = $("tipDialog");
   const noticeBtn = $("noticeBtn");
+  const listView = $("noticeListView");
+  const detailView = $("noticeDetailView");
 
-  function hasUnread() {
-    try { return localStorage.getItem(SEEN_KEY) !== NOTICE_VERSION; }
-    catch (error) { return false; }
+  /* 읽은 공지 id 목록 (null이면 한 번도 공지를 연 적 없는 처음 접속) */
+  function loadSeen() {
+    try {
+      const raw = localStorage.getItem(SEEN_KEY);
+      if (raw === null) return null;
+
+      const list = JSON.parse(raw);
+      return Array.isArray(list) ? list : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function saveSeen(list) {
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(list)); } catch (error) {}
+  }
+
+  function isUnread(id) {
+    const seen = loadSeen();
+    return !seen || !seen.includes(id);
+  }
+
+  function markSeen(id) {
+    const seen = loadSeen() || [];
+    if (!seen.includes(id)) saveSeen([...seen, id]);
   }
 
   function updateBadge() {
-    const unread = hasUnread();
+    const unread = NOTICES.some(n => isUnread(n.id));
+
     noticeBtn.classList.toggle("has-new", unread);
-    noticeBtn.setAttribute("aria-label", unread ? "공지사항 보기 (새 공지 있음)" : "공지사항 보기");
+    noticeBtn.setAttribute("aria-label", unread ? "공지함 열기 (새 공지 있음)" : "공지함 열기");
   }
 
-  function markSeen() {
-    try { localStorage.setItem(SEEN_KEY, NOTICE_VERSION); } catch (error) {}
+  function showList() {
+    detailView.hidden = true;
+    listView.hidden = false;
+
+    $("noticeItems").innerHTML = NOTICES.map(n => `
+      <button type="button" class="notice-item" data-notice="${n.id}"
+        aria-label="${n.title} ${n.date}${isUnread(n.id) ? ", 새 공지" : ""}">
+        <span class="notice-new${isUnread(n.id) ? "" : " read"}" aria-hidden="true"></span>
+        <span class="notice-item-main">
+          <span class="notice-item-title">${n.title} <small>(${n.date})</small></span>
+          <span class="notice-item-sub">${n.summary}</span>
+        </span>
+        <span class="notice-go" aria-hidden="true">›</span>
+      </button>
+    `).join("");
+  }
+
+  function showDetail(id) {
+    const notice = NOTICES.find(n => n.id === id);
+    if (!notice) return;
+
+    markSeen(id);
     updateBadge();
+
+    $("noticeDetailTitle").textContent = notice.title;
+    $("noticeDetailDate").textContent = `(${notice.date})`;
+    $("noticeBody").innerHTML = notice.body;
+
+    listView.hidden = true;
+    detailView.hidden = false;
+    dialog.scrollTop = 0;
   }
 
-  function openTip() {
+  function openDialog() {
     if (dialog.open) return;
-    markSeen();
+
     if (typeof dialog.showModal === "function") dialog.showModal();
     else dialog.setAttribute("open", "");
   }
 
-  function closeTip() {
+  function closeDialog() {
     if (typeof dialog.close === "function") dialog.close();
     else dialog.removeAttribute("open");
   }
 
-  /* 📢 버튼으로 언제든 다시 열 수 있음 */
-  noticeBtn.addEventListener("click", openTip);
-  $("tipClose").addEventListener("click", closeTip);
+  /* 📢 버튼: 공지함(목록) 열기 */
+  noticeBtn.addEventListener("click", function() {
+    if (dialog.open) return;
 
-  /* 공지를 한 번도 읽은 적 없는 사람(처음 접속)에게는 무조건 첫 화면에 띄움 */
+    showList();
+    openDialog();
+  });
+
+  $("noticeItems").addEventListener("click", function(e) {
+    const item = e.target.closest("button[data-notice]");
+    if (item) showDetail(item.dataset.notice);
+  });
+
+  $("noticeBack").addEventListener("click", function() {
+    showList();
+    dialog.scrollTop = 0;
+  });
+
+  $("tipClose").addEventListener("click", closeDialog);
+
+  /* 처음 접속한 사람에게는 첫 공지(저장 안내)를 바로 띄움 */
   let firstVisit = true;
 
-  try { firstVisit = localStorage.getItem(SEEN_KEY) === null; } catch (error) {}
+  try {
+    firstVisit = localStorage.getItem(SEEN_KEY) === null &&
+                 localStorage.getItem(OLD_SEEN_KEY) === null;
+  } catch (error) {}
+
+  if (firstVisit) {
+    showDetail(NOTICES[0].id);
+    openDialog();
+  } else {
+    showList();
+  }
 
   updateBadge();
-  if (firstVisit) openTip();
 })();
 
 /* 탭으로 돌아왔을 때 D-day와 힌트, 오늘 표시를 최신 날짜로 갱신 */
