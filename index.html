@@ -324,52 +324,55 @@ $('#mini-close').onclick=stopPlayer;
 document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.querySelector('.modal-backdrop.open')){e.preventDefault();go('songs');$('#song-search').focus()}});
 setTimeout(()=>{try{const last=+localStorage.getItem('aftertone_lastexport')||0;if(songs.length>=5&&Date.now()-last>30*864e5)toast('백업한 지 오래됐어요. ABOUT에서 JSON으로 내보내 두세요.')}catch{}},600);
 
-// ===== Apple iTunes Search API =====
-// 수정사항: (1) 지원되지 않는 lang=ko_kr 제거  (2) attribute=mixTerm 으로 곡명+아티스트명 동시 검색
-//          (3) 한국 스토어 결과가 비면 미국 스토어로 한 번 더 검색  (4) fetch 실패 시 JSONP 폴백
-function buildEndpoint(term,entity,country){
-  const params=new URLSearchParams({term:term,country:country,media:'music',limit:'25'});
-  if(entity){params.set('entity',entity);params.set('attribute','mixTerm')}
-  return 'https://itunes.apple.com/search?'+params.toString();
-}
+// ===== 음악 검색: Deezer(기본) → Apple iTunes(대체) =====
+// Apple 한국 스토어 검색이 빈 결과를 줄 때를 대비해 Deezer를 먼저 사용합니다.
 function jsonp(endpoint,onDone){
-  const callback='aftertoneAppleCB'+Date.now()+Math.floor(Math.random()*1000);
+  const cb='aftertoneCB'+Date.now()+Math.floor(Math.random()*100000);
   const script=document.createElement('script');
-  const url=new URL(endpoint);url.searchParams.set('callback',callback);
+  const url=new URL(endpoint);url.searchParams.set('callback',cb);
   let finished=false,timer;
-  const cleanup=()=>{if(finished)return;finished=true;delete window[callback];script.remove();clearTimeout(timer)};
-  window[callback]=data=>{cleanup();onDone(data||{results:[]})};
-  script.onerror=()=>{cleanup();onDone({error:true,reason:'network'})};
-  timer=setTimeout(()=>{cleanup();onDone({error:true,reason:'timeout'})},12000);
-  script.src=url.toString();
-  document.body.appendChild(script);
+  const cleanup=()=>{if(finished)return;finished=true;delete window[cb];script.remove();clearTimeout(timer)};
+  window[cb]=data=>{cleanup();onDone(data||{})};
+  script.onerror=()=>{cleanup();onDone({error:true})};
+  timer=setTimeout(()=>{cleanup();onDone({error:true})},12000);
+  script.src=url.toString();document.body.appendChild(script);
 }
-async function fetchApple(endpoint){
+function deezerSearch(term,type,onDone){
+  const ep='https://api.deezer.com/search'+(type==='album'?'/album':'')+'?q='+encodeURIComponent(term)+'&limit=25&output=jsonp';
+  jsonp(ep,d=>{
+    if(!d||d.error||!Array.isArray(d.data)){onDone({error:true});return}
+    const results=d.data.map(x=>type==='album'
+      ?{collectionName:x.title,collectionId:x.id,artistName:x.artist&&x.artist.name,artworkUrl100:x.cover_medium,_cover:x.cover_xl||x.cover_big||x.cover_medium,_albumId:x.id,releaseDate:'',primaryGenreName:''}
+      :{trackName:x.title,artistName:x.artist&&x.artist.name,collectionName:x.album&&x.album.title,collectionId:x.album&&x.album.id,artworkUrl100:x.album&&x.album.cover_medium,_cover:x.album&&(x.album.cover_xl||x.album.cover_big||x.album.cover_medium),_albumId:x.album&&x.album.id,previewUrl:x.preview,releaseDate:'',primaryGenreName:''});
+    onDone({results});
+  });
+}
+const appleEndpoint=(term,entity,country)=>'https://itunes.apple.com/search?'+new URLSearchParams({term,country,media:'music',entity,limit:'25'}).toString();
+async function fetchApple(ep){
   try{
-    const controller=new AbortController();
-    const timeout=setTimeout(()=>controller.abort(),10000);
-    const response=await fetch(endpoint,{signal:controller.signal,mode:'cors',cache:'no-store'});
-    clearTimeout(timeout);
-    if(!response.ok)throw new Error('HTTP '+response.status);
-    const data=await response.json();
-    if(data&&Array.isArray(data.results))return data;
-    throw new Error('Invalid API response');
-  }catch(e){
-    return new Promise(resolve=>jsonp(endpoint,resolve));
-  }
+    const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);
+    const r=await fetch(ep,{signal:c.signal,cache:'no-store'});clearTimeout(t);
+    if(!r.ok)throw new Error('HTTP');
+    const d=await r.json();
+    if(d&&Array.isArray(d.results))return d;
+    throw new Error('bad');
+  }catch(e){return new Promise(res=>jsonp(ep,res))}
 }
 async function appleSearch(term,entity,onDone){
-  const trimmed=term.trim();
-  if(!trimmed){onDone({results:[]});return}
-  let data=await fetchApple(buildEndpoint(trimmed,entity,'kr'));
-  // 한국 스토어에 결과가 없으면 미국 스토어로 재시도 (영문 표기/해외 곡 대비)
-  if(!data.error&&(!data.results||!data.results.length)){
-    const second=await fetchApple(buildEndpoint(trimmed,entity,'us'));
-    if(!second.error)data=second;
-  }
-  onDone(data);
+  let d=await fetchApple(appleEndpoint(term,entity,'kr'));
+  if(!d.error&&!(d.results||[]).length){const s=await fetchApple(appleEndpoint(term,entity,'us'));if(!s.error)d=s}
+  onDone(d);
 }
-// 100x100bb.jpg → 600x600bb.jpg
+function searchMusic(term,type,onDone){
+  deezerSearch(term,type,d=>{
+    if(!d.error&&d.results.length){onDone(d);return}
+    appleSearch(term,type==='song'?'song':'album',a=>{
+      if(a.error&&d.error){onDone({error:true});return}
+      onDone({results:(a&&a.results)||[]});
+    });
+  });
+}
+// 100x100bb.jpg → 600x600bb.jpg (Apple 전용)
 const largeArtwork=url=>url?url.replace(/\/\d+x\d+(bb(?:-\d+)?|-\d+)?\.(jpg|png|webp)/i,(m,s,ext)=>'/600x600'+(s||'bb')+'.'+ext):'';
 function showApiResults(container,items,type){
   if(type==='album'){const seen=new Set();items=items.filter(x=>{const k=x.collectionId||x.collectionName;if(!x.collectionName||seen.has(k))return false;seen.add(k);return true})}
@@ -384,13 +387,23 @@ function showApiResults(container,items,type){
     return `<div class="api-result"><img src="${esc(thumb)}" alt="" onerror="this.style.visibility='hidden'"><div class="api-result-info"><strong>${esc(title||'제목 정보 없음')}</strong><span>${esc(artist)}${year?' · '+year:''}${genre?' · '+esc(genre):''}</span>${preview}</div><div class="api-result-actions"><button type="button" data-choose="${i}">선택</button></div></div>`;
   }).join('');
   container.querySelectorAll('[data-choose]').forEach(btn=>btn.addEventListener('click',()=>{
-    const x=items[Number(btn.dataset.choose)],coverUrl=largeArtwork(x.artworkUrl100||x.artworkUrl60);
+    const x=items[Number(btn.dataset.choose)],coverUrl=x._cover||largeArtwork(x.artworkUrl100||x.artworkUrl60);
     if(type==='song'){
       $('#f-title').value=x.trackName||'';$('#f-artist').value=x.artistName||'';$('#f-album').value=x.collectionName||'';
       $('#f-year').value=(x.releaseDate||'').slice(0,4);$('#f-genre').value=x.primaryGenreName||'';$('#f-cover').value=coverUrl;$('#f-preview').value=x.previewUrl||'';
     }else{
       $('#a-title').value=x.collectionName||'';$('#a-artist').value=x.artistName||x.collectionArtistName||'';
       $('#a-year').value=(x.releaseDate||'').slice(0,4);$('#a-genre').value=x.primaryGenreName||'';$('#a-cover').value=coverUrl;
+    }
+    // Deezer 결과는 앨범 정보를 한 번 더 불러와 연도/장르를 채웁니다
+    if(x._albumId){
+      jsonp('https://api.deezer.com/album/'+x._albumId+'?output=jsonp',d=>{
+        if(!d||d.error)return;
+        const y=(d.release_date||'').slice(0,4),g=(d.genres&&d.genres.data&&d.genres.data[0]&&d.genres.data[0].name)||'';
+        const p=type==='song'?'#f-':'#a-';
+        if(y&&!$(p+'year').value)$(p+'year').value=y;
+        if(g&&!$(p+'genre').value)$(p+'genre').value=g;
+      });
     }
     toast('음악 정보를 입력했어요. 나머지 내용을 확인하고 저장해 주세요.');
   }));
@@ -402,10 +415,10 @@ function runAppleSearch(type){
   const button=isSong?$('#api-song-search'):$('#api-album-search');
   if(!query.trim()){toast('검색어를 입력해 주세요.');return}
   button.disabled=true;button.textContent='검색 중…';
-  container.innerHTML='<div class="api-status">Apple 음악 카탈로그에서 검색하고 있어요…</div>';
-  appleSearch(query,isSong?'song':'album',data=>{
+  container.innerHTML='<div class="api-status">음악 카탈로그에서 검색하고 있어요…</div>';
+  searchMusic(query.trim(),type,data=>{
     button.disabled=false;button.textContent='검색';
-    if(data.error){container.innerHTML='<div class="api-hint">음악 검색 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요. 계속 실패하면 광고 차단기나 브라우저 보안 설정을 확인하거나, 이 파일을 .html로 저장해 브라우저에서 직접 열어 보세요.</div>';return}
+    if(data.error){container.innerHTML='<div class="api-hint">음악 검색 서버에 연결하지 못했어요. 인터넷 연결을 확인하고, 광고 차단기를 꺼 보거나 파일을 브라우저에서 직접 열어 다시 시도해 주세요.</div>';return}
     showApiResults(container,data.results||[],type);
   });
 }
