@@ -63,6 +63,7 @@ input,select,textarea{border:1px solid #ddd;border-radius:8px;padding:9px 11px;b
 .mini{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 20px;z-index:15}.mini button{border:0;background:var(--fg);color:#fff;border-radius:50%;width:32px;height:32px;flex-shrink:0}.mini #mini-close{background:none;color:#999;font-size:20px}.mini-info{width:190px;min-width:0}.mini-info strong,.mini-info span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-info strong{font-size:13px}.mini-info span{font-size:12px;color:var(--muted)}.mini input{flex:1;min-width:60px;padding:0;border:0}
 body.has-mini .wrap{padding-bottom:160px}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.song-tag{display:none}.glance{gap:20px}.mini-info{width:110px}.pick{flex-wrap:wrap}.fbar select{max-width:none;flex:1 1 45%}}
+.rec-pager{justify-content:center;align-items:center;gap:14px;padding:8px 0 2px;font-size:13px;color:var(--muted)}.btn:disabled{opacity:.35;cursor:default}
 .rec-play{border:1px solid #ddd;background:#fff;color:var(--fg);border-radius:50%;width:30px;height:30px;font-size:11px;flex-shrink:0;padding:0}.rec-play:hover{border-color:var(--fg)}
 </style>
 </head>
@@ -541,8 +542,19 @@ function searchTrack(title,artist,onDone){
   };
   next();
 }
-// 추천 목록: 미리듣기가 있는 곡만 보여줌 (Deezer·Apple 검색으로 확인한 뒤 공개)
-function enrichRecs(container,list,cap){
+// 추천 목록: 미리듣기가 있는 곡만 보여주고, pageSize가 있으면 페이지로 나눔
+function recPage(container){
+  const o=container._opt||{},all=[...container.querySelectorAll('[data-row]')],rows=all.filter(r=>r.dataset.ok);
+  const size=o.pageSize||rows.length||1,pages=Math.max(1,Math.ceil(rows.length/size));
+  container._page=Math.min(container._page||0,pages-1);
+  const from=container._page*size,to=from+size;
+  all.forEach(r=>{r.style.display='none'});
+  rows.forEach((r,i)=>{r.style.display=(i>=from&&i<to)?'':'none'});
+  const pg=container.querySelector('.rec-pager');
+  if(pg){pg.style.display=(o.pageSize&&pages>1)?'flex':'none';pg.querySelector('span').textContent=(container._page+1)+' / '+pages;pg.querySelector('[data-pg="-1"]').disabled=container._page<=0;pg.querySelector('[data-pg="1"]').disabled=container._page>=pages-1}
+}
+function enrichRecs(container,list,opt){
+  const cap=opt.cap||list.length;
   let shown=0,done=0;
   const finish=()=>{
     if(container._list!==list)return;
@@ -552,6 +564,7 @@ function enrichRecs(container,list,cap){
   };
   const task=async c=>{
     try{
+      if(shown>=cap)return;
       const data=await new Promise(res=>searchTrack(c.title,c.artist,res));
       if(container._list!==list||!data||data.error)return;
       const best=(data.results||[]).find(x=>{if(!x.trackName||!x.previewUrl)return false;const a=recNorm(x.artistName),b=recNorm(c.artist);return a&&b&&(a.includes(b)||b.includes(a))});
@@ -559,20 +572,26 @@ function enrichRecs(container,list,cap){
       shown++;
       c.cover=best.artworkUrl100||best.artworkUrl60||best._cover||'';c.preview=best.previewUrl;
       const row=container.querySelector('[data-row="'+list.indexOf(c)+'"]');if(!row)return;
-      row.style.display='';
+      row.dataset.ok='1';
       if(c.cover)row.querySelector('.mini-cover').innerHTML=cover(c.cover);
       const pb=row.querySelector('[data-play]');if(pb)pb.style.display='';
+      recPage(container);
+      if(opt.onShow)opt.onShow(c);
     }finally{finish()}
   };
   (async()=>{for(let k=0;k<list.length;k+=4)await Promise.all(list.slice(k,k+4).map(task))})();
 }
-function renderRecList(container,list,cap){
-  container._list=list;
+function renderRecList(container,list,opt){
+  opt=opt||{};
+  container._list=list;container._opt=opt;container._page=0;
   list.forEach(c=>{c._modal=container.id==='sim-results'});
-  container.innerHTML='<div class="api-status rec-loading">미리듣기 가능한 곡을 확인하고 있어요…</div>'+list.map((c,i)=>`<div class="api-result" data-row="${i}" style="display:none"><div class="mini-cover">${PH}</div><div class="api-result-info"><strong>${esc(c.title)}</strong><span>${esc(c.artist)}${c.meta?' · '+esc(c.meta):''}</span>${c.reason?`<span style="white-space:normal">${esc(c.reason)}</span>`:''}</div><button type="button" class="rec-play" data-play="${i}" style="display:none" aria-label="미리듣기">▶</button><div class="api-result-actions"><button type="button" data-add="${i}">추가</button></div></div>`).join('');
+  container.innerHTML='<div class="api-status rec-loading">미리듣기 가능한 곡을 확인하고 있어요…</div>'
+    +list.map((c,i)=>`<div class="api-result" data-row="${i}" style="display:none"><div class="mini-cover">${PH}</div><div class="api-result-info"><strong>${esc(c.title)}</strong><span>${esc(c.artist)}${c.meta?' · '+esc(c.meta):''}</span>${c.reason?`<span style="white-space:normal">${esc(c.reason)}</span>`:''}</div><button type="button" class="rec-play" data-play="${i}" style="display:none" aria-label="미리듣기">▶</button><div class="api-result-actions"><button type="button" data-add="${i}">추가</button></div></div>`).join('')
+    +'<div class="rec-pager" style="display:none"><button type="button" class="btn secondary small" data-pg="-1" aria-label="이전 페이지">‹</button><span></span><button type="button" class="btn secondary small" data-pg="1" aria-label="다음 페이지">›</button></div>';
   container.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>addRecommended(list[Number(b.dataset.add)])));
   container.querySelectorAll('[data-play]').forEach(b=>{b._item=list[Number(b.dataset.play)];b.addEventListener('click',()=>toggleRecPlay(b._item))});
-  enrichRecs(container,list,cap||list.length);
+  container.querySelectorAll('[data-pg]').forEach(b=>b.addEventListener('click',()=>{container._page=(container._page||0)+Number(b.dataset.pg);recPage(container)}));
+  enrichRecs(container,list,opt);
 }
 async function showSimilar(id){
   const s=songs.find(x=>x.id===id);if(!s)return;
@@ -618,16 +637,20 @@ async function candTags(artist,track){
   tags.forEach(x=>{const n=String(x.name||'').toLowerCase().trim();if(SOUND_MAP[n])out.add(SOUND_MAP[n])});
   return [...out];
 }
+const recSeen=new Set(); // 이번 접속 중 이미 보여준 추천곡
 async function recommend(){
   const lib=new Set(songs.map(skey));
   const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
-  const seeds=[...shuffle(songs.filter(s=>s.fav)),...shuffle(songs.filter(s=>!s.fav))].slice(0,6);
+  const seeds=[...shuffle(songs.filter(s=>s.fav)),...shuffle(songs.filter(s=>!s.fav))].slice(0,8);
   const cand=new Map();
   await Promise.all(seeds.map(async sd=>{
     const list=await getSimilar(sd.artist,sd.title);
     list.forEach(c=>{const k=skey(c);if(lib.has(k))return;const e=cand.get(k)||{...c,score:0,seeds:[]};e.score+=c.match||0.3;e.seeds.push(sd.title);cand.set(k,e)});
   }));
-  const top=[...cand.values()].sort((a,b)=>b.score-a.score).slice(0,24);
+  const sorted=[...cand.values()].sort((a,b)=>b.score-a.score);
+  const fresh=sorted.filter(c=>!recSeen.has(skey(c)));
+  let pool=fresh;if(fresh.length<12){recSeen.clear();pool=sorted}
+  const top=pool.slice(0,24);
   if(!top.length)return [];
   for(let i=0;i<top.length;i+=6){
     await Promise.all(top.slice(i,i+6).map(async c=>{try{c.tags=await candTags(c.artist,c.title)}catch(e){c.tags=[]}}));
@@ -639,10 +662,11 @@ async function recommend(){
     const dot=shared.reduce((a,t)=>a+prof[t],0),cn=Math.sqrt(c.tags.length)||1;
     const cos=c.tags.length?dot/(pn*cn):0;
     c.final=0.55*(c.score/maxS)+0.45*Math.min(1,cos*2.5);
+    c.j=Math.random()*0.12;
     c.meta='추천 점수 '+Math.round(c.final*100);
     c.reason='「'+c.seeds[0]+'」와(과) 비슷해요'+(shared.length?' · 취향 일치: '+shared.slice(0,3).join(', '):'');
   });
-  return top.sort((a,b)=>b.final-a.final).slice(0,16);
+  return top.sort((a,b)=>(b.final+b.j)-(a.final+a.j));
 }
 $('#rec-btn').onclick=async()=>{
   const box=$('#rec-results'),btn=$('#rec-btn');
@@ -652,7 +676,7 @@ $('#rec-btn').onclick=async()=>{
   try{
     const list=await recommend();
     if(!list.length)box.innerHTML='<div class="api-hint">추천 후보를 찾지 못했어요. 곡을 더 저장하거나 잠시 후 다시 시도해 주세요.</div>';
-    else renderRecList(box,list,10);
+    else renderRecList(box,list,{cap:15,pageSize:5,onShow:c=>recSeen.add(skey(c))});
   }catch(e){box.innerHTML='<div class="api-hint">추천을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.</div>'}
   btn.disabled=false;btn.textContent='다시 추천 받기';
 };
