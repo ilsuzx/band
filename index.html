@@ -134,6 +134,7 @@ body.has-mini .wrap{padding-bottom:160px}
 <div class="field"><label>앨범</label><input id="f-album"></div><div class="field"><label>발매 연도</label><input id="f-year" type="number" min="1900" max="2100"></div>
 <div class="field"><label>장르</label><input id="f-genre" placeholder="예: 인디 록"></div><div class="field"><label>분위기</label><input id="f-mood" placeholder="예: 몽환적인, 청량한"></div>
 <div class="field"><label>사운드</label><input id="f-sound" placeholder="예: 기타, 신스"></div><div class="field"><label>커버 이미지 주소</label><input id="f-cover" type="url" placeholder="https://"></div>
+<div class="field full"><button type="button" class="btn secondary small" id="auto-tags" style="align-self:flex-start">분위기·사운드 자동 채우기</button></div>
 <div class="field full"><label>이 곡을 좋아하는 이유</label><textarea id="f-note"></textarea></div>
 </div><div class="modal-actions"><button type="button" class="btn secondary" data-close>취소</button><button class="btn" type="submit">저장</button></div></form></div></div>
 
@@ -413,6 +414,7 @@ function showApiResults(container,items,type){
       });
     }
     toast('음악 정보를 입력했어요. 나머지 내용을 확인하고 저장해 주세요.');
+    if(type==='song')autoTags(false);
   }));
 }
 function runAppleSearch(type){
@@ -441,6 +443,40 @@ $('#clean-albums').onclick=()=>{
   if(!confirm(`수록곡과 감상 메모가 없는 앨범 ${dead.length}개를 삭제할까요?\n`+dead.slice(0,8).map(a=>'· '+a.title).join('\n')+(dead.length>8?'\n…':'')))return;
   const backup=albums.slice();albums=albums.filter(a=>!dead.includes(a));save();render();
   undoToast(`빈 앨범 ${dead.length}개를 정리했어요.`,()=>{albums=backup;save();render()})};
+// ===== Last.fm 태그로 분위기·사운드 자동 채우기 =====
+const LASTFM_KEY='660e25c207739006dd8b6d13bff8a539';
+const MOOD_MAP={dreamy:'몽환적인',melancholic:'우울한',melancholy:'우울한',chill:'편안한',chillout:'편안한',mellow:'잔잔한',sad:'슬픈',happy:'경쾌한',romantic:'로맨틱한',energetic:'에너제틱한',upbeat:'경쾌한',atmospheric:'분위기 있는',emotional:'감성적인',nostalgic:'향수를 부르는',relaxing:'편안한',dark:'어두운',calm:'차분한',beautiful:'아름다운',sentimental:'서정적인',lyrical:'서정적인',warm:'따뜻한',cozy:'아늑한',sweet:'달콤한',cute:'사랑스러운',fun:'신나는',summer:'청량한',fresh:'청량한',lonely:'쓸쓸한','feel good':'기분 좋은',sexy:'관능적인',intense:'강렬한',aggressive:'강렬한',peaceful:'평화로운',soothing:'편안한',hopeful:'희망적인',bittersweet:'씁쓸한',moody:'무드 있는',ethereal:'몽환적인',sleepy:'나른한',smooth:'부드러운',soft:'부드러운',powerful:'파워풀한',uplifting:'희망찬',angry:'격정적인',haunting:'아련한',gloomy:'우울한',epic:'웅장한'};
+const SOUND_MAP={guitar:'기타','electric guitar':'일렉트릭 기타','acoustic guitar':'어쿠스틱 기타',acoustic:'어쿠스틱',piano:'피아노',synth:'신스',synthesizer:'신스',synthpop:'신스',electronic:'일렉트로닉',drums:'드럼',bass:'베이스',strings:'스트링',violin:'바이올린',orchestral:'오케스트라',orchestra:'오케스트라','lo-fi':'로파이',lofi:'로파이',ambient:'앰비언트',band:'밴드',brass:'브라스',saxophone:'색소폰',vocal:'보컬','female vocalists':'여성 보컬','male vocalists':'남성 보컬','female vocalist':'여성 보컬','male vocalist':'남성 보컬',beats:'비트',instrumental:'인스트루멘탈',trumpet:'트럼펫',cello:'첼로',flute:'플루트',keyboard:'키보드',percussion:'퍼커션'};
+async function lfm(method,params){
+  const ep='https://ws.audioscrobbler.com/2.0/?'+new URLSearchParams({method,api_key:LASTFM_KEY,format:'json',autocorrect:'1',...params}).toString();
+  try{
+    const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);
+    const r=await fetch(ep,{signal:c.signal});clearTimeout(t);
+    if(!r.ok)throw new Error('HTTP');
+    return await r.json();
+  }catch(e){return new Promise(res=>jsonp(ep,res))}
+}
+async function autoTags(force){
+  const title=$('#f-title').value.trim(),artist=$('#f-artist').value.trim();
+  const btn=$('#auto-tags');
+  if(!title||!artist){if(force)toast('곡명과 아티스트를 먼저 입력해 주세요.');return}
+  btn.disabled=true;btn.textContent='태그 불러오는 중…';
+  try{
+    const arr=v=>Array.isArray(v)?v:(v?[v]:[]);
+    const t=await lfm('track.getTopTags',{artist,track:title});
+    let tags=arr(t&&t.toptags&&t.toptags.tag);
+    if(tags.length<8){const a=await lfm('artist.getTopTags',{artist});tags=[...tags,...arr(a&&a.toptags&&a.toptags.tag)]}
+    const pick=map=>{const out=[];for(const x of tags){const k=map[String(x.name||'').toLowerCase().trim()];if(k&&!out.includes(k))out.push(k);if(out.length>=3)break}return out};
+    const moods=pick(MOOD_MAP),sounds=pick(SOUND_MAP);
+    let filled=0;
+    if(moods.length&&(force||!$('#f-mood').value.trim())){$('#f-mood').value=moods.join(', ');filled++}
+    if(sounds.length&&(force||!$('#f-sound').value.trim())){$('#f-sound').value=sounds.join(', ');filled++}
+    if(filled)toast('분위기·사운드를 자동으로 채웠어요. 필요하면 수정해 주세요.');
+    else if(force)toast(tags.length?'매칭되는 분위기·사운드 태그가 없어요. 직접 입력해 주세요.':'이 곡의 태그 정보가 없어요. 직접 입력해 주세요.');
+  }catch(e){if(force)toast('태그를 불러오지 못했어요.')}
+  btn.disabled=false;btn.textContent='분위기·사운드 자동 채우기';
+}
+$('#auto-tags').onclick=()=>autoTags(true);
 render();
 </script>
 </body>
