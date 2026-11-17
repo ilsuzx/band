@@ -324,13 +324,27 @@ $('#mini-close').onclick=stopPlayer;
 document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.querySelector('.modal-backdrop.open')){e.preventDefault();go('songs');$('#song-search').focus()}});
 setTimeout(()=>{try{const last=+localStorage.getItem('aftertone_lastexport')||0;if(songs.length>=5&&Date.now()-last>30*864e5)toast('백업한 지 오래됐어요. ABOUT에서 JSON으로 내보내 두세요.')}catch{}},600);
 
-// Apple iTunes Search API (fetch 실패 시 JSONP 폴백)
-async function appleSearch(term,entity,onDone){
-  const trimmed=term.trim();
-  if(!trimmed){onDone({results:[]});return}
-  const params=new URLSearchParams({term:trimmed,country:'kr',media:'music',limit:'25',lang:'ko_kr'});
-  if(entity)params.set('entity',entity);
-  const endpoint='https://itunes.apple.com/search?'+params.toString();
+// ===== Apple iTunes Search API =====
+// 수정사항: (1) 지원되지 않는 lang=ko_kr 제거  (2) attribute=mixTerm 으로 곡명+아티스트명 동시 검색
+//          (3) 한국 스토어 결과가 비면 미국 스토어로 한 번 더 검색  (4) fetch 실패 시 JSONP 폴백
+function buildEndpoint(term,entity,country){
+  const params=new URLSearchParams({term:term,country:country,media:'music',limit:'25'});
+  if(entity){params.set('entity',entity);params.set('attribute','mixTerm')}
+  return 'https://itunes.apple.com/search?'+params.toString();
+}
+function jsonp(endpoint,onDone){
+  const callback='aftertoneAppleCB'+Date.now()+Math.floor(Math.random()*1000);
+  const script=document.createElement('script');
+  const url=new URL(endpoint);url.searchParams.set('callback',callback);
+  let finished=false,timer;
+  const cleanup=()=>{if(finished)return;finished=true;delete window[callback];script.remove();clearTimeout(timer)};
+  window[callback]=data=>{cleanup();onDone(data||{results:[]})};
+  script.onerror=()=>{cleanup();onDone({error:true,reason:'network'})};
+  timer=setTimeout(()=>{cleanup();onDone({error:true,reason:'timeout'})},12000);
+  script.src=url.toString();
+  document.body.appendChild(script);
+}
+async function fetchApple(endpoint){
   try{
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),10000);
@@ -338,20 +352,22 @@ async function appleSearch(term,entity,onDone){
     clearTimeout(timeout);
     if(!response.ok)throw new Error('HTTP '+response.status);
     const data=await response.json();
-    if(data&&Array.isArray(data.results)){onDone(data);return}
+    if(data&&Array.isArray(data.results))return data;
     throw new Error('Invalid API response');
-  }catch(fetchError){
-    const callback='aftertoneAppleCB'+Date.now()+Math.floor(Math.random()*1000);
-    const script=document.createElement('script');
-    const url=new URL(endpoint);url.searchParams.set('callback',callback);
-    let finished=false,timer;
-    const cleanup=()=>{if(finished)return;finished=true;delete window[callback];script.remove();clearTimeout(timer)};
-    window[callback]=data=>{cleanup();onDone(data||{results:[]})};
-    script.onerror=()=>{cleanup();onDone({error:true,reason:'network'})};
-    timer=setTimeout(()=>{cleanup();onDone({error:true,reason:'timeout'})},12000);
-    script.src=url.toString();
-    document.body.appendChild(script);
+  }catch(e){
+    return new Promise(resolve=>jsonp(endpoint,resolve));
   }
+}
+async function appleSearch(term,entity,onDone){
+  const trimmed=term.trim();
+  if(!trimmed){onDone({results:[]});return}
+  let data=await fetchApple(buildEndpoint(trimmed,entity,'kr'));
+  // 한국 스토어에 결과가 없으면 미국 스토어로 재시도 (영문 표기/해외 곡 대비)
+  if(!data.error&&(!data.results||!data.results.length)){
+    const second=await fetchApple(buildEndpoint(trimmed,entity,'us'));
+    if(!second.error)data=second;
+  }
+  onDone(data);
 }
 // 100x100bb.jpg → 600x600bb.jpg
 const largeArtwork=url=>url?url.replace(/\/\d+x\d+(bb(?:-\d+)?|-\d+)?\.(jpg|png|webp)/i,(m,s,ext)=>'/600x600'+(s||'bb')+'.'+ext):'';
@@ -362,9 +378,7 @@ function showApiResults(container,items,type){
   container.innerHTML=items.map((x,i)=>{
     const title=type==='song'?x.trackName:x.collectionName;
     const artist=x.artistName||x.collectionArtistName||'Unknown Artist';
-    const coverUrl=largeArtwork(x.artworkUrl100||x.artworkUrl60);
     const year=(x.releaseDate||'').slice(0,4),genre=x.primaryGenreName||'';
-    const storeUrl=x.trackViewUrl||x.collectionViewUrl||'';
     const preview=type==='song'&&x.previewUrl?`<audio controls preload="none" src="${esc(x.previewUrl)}"></audio>`:'';
     const thumb=(x.artworkUrl100||x.artworkUrl60||'');
     return `<div class="api-result"><img src="${esc(thumb)}" alt="" onerror="this.style.visibility='hidden'"><div class="api-result-info"><strong>${esc(title||'제목 정보 없음')}</strong><span>${esc(artist)}${year?' · '+year:''}${genre?' · '+esc(genre):''}</span>${preview}</div><div class="api-result-actions"><button type="button" data-choose="${i}">선택</button></div></div>`;
@@ -391,7 +405,7 @@ function runAppleSearch(type){
   container.innerHTML='<div class="api-status">Apple 음악 카탈로그에서 검색하고 있어요…</div>';
   appleSearch(query,isSong?'song':'album',data=>{
     button.disabled=false;button.textContent='검색';
-    if(data.error){container.innerHTML='<div class="api-hint">음악 검색 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요. 계속 실패하면 광고 차단기나 브라우저 보안 설정을 확인해 주세요.</div>';return}
+    if(data.error){container.innerHTML='<div class="api-hint">음악 검색 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요. 계속 실패하면 광고 차단기나 브라우저 보안 설정을 확인하거나, 이 파일을 .html로 저장해 브라우저에서 직접 열어 보세요.</div>';return}
     showApiResults(container,data.results||[],type);
   });
 }
