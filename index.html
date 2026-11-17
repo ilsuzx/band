@@ -192,7 +192,14 @@ $('#album-form').onsubmit=e=>{e.preventDefault();const id=$('#album-id').value;
   if(id)albums=albums.map(x=>x.id===id?a:x);else albums.unshift(a);
   save();closeModals();render();toast('앨범을 저장했어요.')};
 $('#album-delete').onclick=()=>{const id=$('#album-id').value,i=albums.findIndex(a=>a.id===id);if(i<0)return;const a=albums[i];albums.splice(i,1);save();closeModals();render();undoToast('앨범을 삭제했어요.',()=>{albums.splice(Math.min(i,albums.length),0,a);save();render()})};
-function removeSong(id){const i=songs.findIndex(s=>s.id===id);if(i<0)return;const s=songs[i];if(playingId===id)stopPlayer();songs.splice(i,1);save();render();undoToast('곡을 삭제했어요.',()=>{songs.splice(Math.min(i,songs.length),0,s);save();render()})}
+function removeSong(id){const i=songs.findIndex(s=>s.id===id);if(i<0)return;const s=songs[i];if(playingId===id)stopPlayer();songs.splice(i,1);
+  // 이 곡 때문에 자동 생성됐고 다른 수록곡·감상 메모가 없는 앨범은 함께 삭제
+  let rm=null;
+  if(s.album){const same=x=>x.album&&x.album.toLowerCase()===s.album.toLowerCase()&&x.artist.toLowerCase()===s.artist.toLowerCase();
+    const ai=albums.findIndex(a=>a.title.toLowerCase()===s.album.toLowerCase()&&a.artist.toLowerCase()===s.artist.toLowerCase());
+    if(ai>=0&&!albums[ai].note&&!songs.some(same)){rm={a:albums[ai],i:ai};albums.splice(ai,1)}}
+  save();render();
+  undoToast(rm?'곡과 빈 앨범을 삭제했어요.':'곡을 삭제했어요.',()=>{songs.splice(Math.min(i,songs.length),0,s);if(rm)albums.splice(Math.min(rm.i,albums.length),0,rm.a);save();render()})}
 const songRow=s=>`<div class="song-row"><div class="mini-cover">${cover(s.cover)}</div><div class="song-meta"><strong>${esc(s.title)}</strong><span>${esc(s.artist)}${s.album?' · '+esc(s.album):''}</span>${s.note?`<em class="note" title="${esc(s.note)}">“${esc(s.note)}”</em>`:''}</div>${s.genre?`<span class="song-tag">${esc(s.genre)}</span>`:''}<div class="row-actions">${s.preview?`<button class="icon-btn play" title="미리듣기" aria-label="미리듣기" onclick="playSong('${s.id}')">${playingId===s.id&&!player.paused?'❚❚':'▶'}</button>`:''}<button class="icon-btn fav ${s.fav?'on':''}" title="즐겨찾기" aria-label="즐겨찾기" onclick="toggleFav('${s.id}')">${s.fav?'♥':'♡'}</button><button class="icon-btn" title="수정" onclick="editSong('${s.id}')">✎</button><button class="icon-btn" title="삭제" onclick="removeSong('${s.id}')">×</button></div></div>`;
 const albumCard=a=>`<div class="album-card" onclick="editAlbum('${a.id}')"><div class="cover">${cover(a.cover)}</div><h3>${esc(a.title)}</h3><p>${esc(a.artist)}${a.year?' · '+esc(a.year):''}</p></div>`;
 function dailyIndex(n){const d=new Date().toDateString();let h=0;for(const c of d)h=(h*31+c.charCodeAt(0))>>>0;return h%n}
