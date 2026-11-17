@@ -94,7 +94,7 @@ body.has-mini .wrap{padding-bottom:160px}
 </section>
 
 <section class="page" id="page-albums">
-  <div class="head"><h1>앨범</h1><button class="btn" id="add-album">앨범 추가</button></div>
+  <div class="head"><h1>앨범</h1><div style="display:flex;gap:8px"><button class="btn secondary" id="clean-albums">빈 앨범 정리</button><button class="btn" id="add-album">앨범 추가</button></div></div>
   <div class="toolbar"><input class="search" id="album-search" placeholder="앨범명 또는 아티스트 검색"><select id="album-sort"><option value="new">최근 추가순</option><option value="title">제목순</option><option value="year">발매연도순</option></select></div>
   <div class="grid" id="album-grid" style="margin-top:20px"></div>
 </section>
@@ -433,6 +433,14 @@ $('#api-song-search').addEventListener('click',()=>runAppleSearch('song'));
 $('#api-album-search').addEventListener('click',()=>runAppleSearch('album'));
 $('#api-song-query').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runAppleSearch('song')}});
 $('#api-album-query').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runAppleSearch('album')}});
+// 수록곡도 감상 메모도 없는 앨범 일괄 정리 (예전에 지운 곡의 잔여 앨범용)
+$('#clean-albums').onclick=()=>{
+  const same=(a,s)=>s.album&&s.album.toLowerCase()===a.title.toLowerCase()&&s.artist.toLowerCase()===a.artist.toLowerCase();
+  const dead=albums.filter(a=>!a.note&&!songs.some(s=>same(a,s)));
+  if(!dead.length){toast('정리할 빈 앨범이 없어요.');return}
+  if(!confirm(`수록곡과 감상 메모가 없는 앨범 ${dead.length}개를 삭제할까요?\n`+dead.slice(0,8).map(a=>'· '+a.title).join('\n')+(dead.length>8?'\n…':'')))return;
+  const backup=albums.slice();albums=albums.filter(a=>!dead.includes(a));save();render();
+  undoToast(`빈 앨범 ${dead.length}개를 정리했어요.`,()=>{albums=backup;save();render()})};
 render();
 </script>
 </body>
