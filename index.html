@@ -503,10 +503,38 @@ function toggleRecPlay(c){
   recPlaying=c;recAudio.src=c.preview;
   recAudio.play().catch(()=>toast('미리듣기를 재생할 수 없어요.'));
 }
+// 곡명+아티스트로 단계적으로 검색: Deezer 정밀 검색 → 일반 검색 → 곡명만 → Apple
+function searchTrack(title,artist,onDone){
+  const t=String(title).replace(/"/g,''),a=String(artist).replace(/"/g,'');
+  const match=x=>{const p=recNorm(x.artistName),q=recNorm(a);return p&&q&&(p.includes(q)||q.includes(p))};
+  const tries=[
+    {run:cb=>deezerSearch('artist:"'+a+'" track:"'+t+'"','song',cb),strict:false},
+    {run:cb=>deezerSearch(t+' '+a,'song',cb),strict:true},
+    {run:cb=>deezerSearch(t,'song',cb),strict:true},
+    {run:cb=>appleSearch(t+' '+a,'song',cb),strict:true}
+  ];
+  let i=0,anyOk=false,loose=null;
+  const next=()=>{
+    if(i>=tries.length){onDone(anyOk?{results:loose||[]}:{error:true});return}
+    const tr=tries[i++];
+    tr.run(d=>{
+      if(d&&!d.error)anyOk=true;
+      const r=((d&&d.results)||[]).filter(x=>x.trackName);
+      if(r.length){
+        const good=r.filter(match);
+        if(good.length){onDone({results:[...good,...r.filter(x=>!good.includes(x))]});return}
+        if(!tr.strict){onDone({results:r});return}
+        if(!loose)loose=r;
+      }
+      next();
+    });
+  };
+  next();
+}
 // 추천 목록의 커버/미리듣기를 Deezer·Apple 검색으로 뒤늦게 채움
 function enrichRecs(container,list){
   const task=async c=>{
-    const data=await new Promise(res=>searchMusic(c.title+' '+c.artist,'song',res));
+    const data=await new Promise(res=>searchTrack(c.title,c.artist,res));
     if(container._list!==list||!data||data.error)return;
     const best=(data.results||[]).find(x=>{if(!x.trackName)return false;const a=recNorm(x.artistName),b=recNorm(c.artist);return a&&b&&(a.includes(b)||b.includes(a))});
     if(!best)return;
@@ -547,9 +575,9 @@ function addRecommended(item){
   const container=$('#api-song-results');
   container.innerHTML='<div class="api-status">곡 정보를 찾고 있어요…</div>';
   const norm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9가-힣]/g,'');
-  searchMusic(item.title+' '+item.artist,'song',data=>{
+  searchTrack(item.title,item.artist,data=>{
     const results=(data&&data.results||[]).filter(x=>x.trackName);
-    if(data.error||!results.length){container.innerHTML='<div class="api-hint">자동으로 찾지 못했어요. 곡명과 아티스트를 확인하고 직접 검색해 주세요.</div>';autoTags(false);return}
+    if(data.error||!results.length){container.innerHTML='<div class="api-hint">Deezer·Apple에서 이 곡을 찾지 못했어요. 곡명과 아티스트는 채워 뒀으니, 검색어를 바꿔 다시 검색하거나 직접 입력해 저장해 주세요.</div>';autoTags(false);return}
     showApiResults(container,results,'song');
     const best=results.find(x=>{const a=norm(x.artistName),b=norm(item.artist);return a&&b&&(a.includes(b)||b.includes(a))});
     if(best){const tmp=document.createElement('div');showApiResults(tmp,[best],'song');const btn=tmp.querySelector('[data-choose]');if(btn)btn.click()}
