@@ -103,7 +103,7 @@ body.has-mini .wrap{padding-bottom:160px}
 <section class="page" id="page-taste">
   <div class="head"><div><h1>취향</h1><p class="taste-text" id="taste-copy"></p></div></div>
   <div class="block"><div class="glance" id="glance"></div></div>
-  <div class="block"><div class="head" style="margin-bottom:8px"><h2>취향 기반 추천</h2><button class="btn small" id="rec-btn">추천 받기</button></div><p class="taste-text" style="margin:0 0 12px;font-size:13px">저장한 곡(3곡 이상)과 비슷한 곡을 Last.fm에서 찾고, 내 사운드 태그와 잘 맞는 순서로 보여줘요.</p><div class="api-results" id="rec-results" style="max-height:none"></div></div>
+  <div class="block"><div class="head" style="margin-bottom:8px"><h2>취향 기반 추천</h2><button class="btn small" id="rec-btn">추천 받기</button></div><p class="taste-text" style="margin:0 0 12px;font-size:13px">저장한 곡(3곡 이상)과 비슷한 곡을 찾아서, 내 사운드 태그와 잘 맞는 순서로 보여줘요.</p><div class="api-results" id="rec-results" style="max-height:none"></div></div>
   <div class="block"><h2>장르 비율</h2><div id="genre-donut"></div></div>
   <div class="block"><h2>발매 연도</h2><div id="year-chart"></div></div>
   <div class="block"><h2>자주 듣는 아티스트</h2><div id="artist-bars"></div></div>
@@ -329,7 +329,7 @@ $('#mini-close').onclick=stopPlayer;
 document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.querySelector('.modal-backdrop.open')){e.preventDefault();go('songs');$('#song-search').focus()}});
 setTimeout(()=>{try{const last=+localStorage.getItem('aftertone_lastexport')||0;if(songs.length>=5&&Date.now()-last>30*864e5)toast('백업한 지 오래됐어요. ABOUT에서 JSON으로 내보내 두세요.')}catch{}},600);
 
-// ===== 음악 검색: Deezer(기본) → Apple iTunes(대체) =====
+// ===== 음악 검색: Deezer(기본) + Apple iTunes(보충) =====
 // Apple 한국 스토어 검색이 빈 결과를 줄 때를 대비해 Deezer를 먼저 사용합니다.
 function jsonp(endpoint,onDone){
   const cb='aftertoneCB'+Date.now()+Math.floor(Math.random()*100000);
@@ -368,12 +368,22 @@ async function appleSearch(term,entity,onDone){
   if(!d.error&&!(d.results||[]).length){const s=await fetchApple(appleEndpoint(term,entity,'us'));if(!s.error)d=s}
   onDone(d);
 }
+// Deezer 결과가 8개 미만이면 Apple 결과를 합쳐서 보여줍니다 (중복 제거)
 function searchMusic(term,type,onDone){
+  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9가-힣]/g,'');
   deezerSearch(term,type,d=>{
-    if(!d.error&&d.results.length){onDone(d);return}
+    const dz=(!d.error&&d.results)||[];
+    if(dz.length>=8){onDone({results:dz});return}
     appleSearch(term,type==='song'?'song':'album',a=>{
       if(a.error&&d.error){onDone({error:true});return}
-      onDone({results:(a&&a.results)||[]});
+      const seen=new Set();
+      const merged=[...dz,...((a&&a.results)||[])].filter(x=>{
+        const k=type==='song'
+          ?norm(x.trackName)+'|'+norm(x.artistName)
+          :norm(x.collectionName)+'|'+norm(x.artistName||x.collectionArtistName);
+        if(seen.has(k))return false;seen.add(k);return true;
+      });
+      onDone({results:merged});
     });
   });
 }
@@ -440,11 +450,11 @@ $('#clean-albums').onclick=()=>{
   if(!confirm(`수록곡과 감상 메모가 없는 앨범 ${dead.length}개를 삭제할까요?\n`+dead.slice(0,8).map(a=>'· '+a.title).join('\n')+(dead.length>8?'\n…':'')))return;
   const backup=albums.slice();albums=albums.filter(a=>!dead.includes(a));save();render();
   undoToast(`빈 앨범 ${dead.length}개를 정리했어요.`,()=>{albums=backup;save();render()})};
-// ===== Last.fm 태그로 사운드 자동 채우기 =====
-const LASTFM_KEY='660e25c207739006dd8b6d13bff8a539';
+// ===== 태그로 사운드 자동 채우기 =====
+const MUSIC_KEY='660e25c207739006dd8b6d13bff8a539';
 const SOUND_MAP={guitar:'기타','electric guitar':'일렉트릭 기타','acoustic guitar':'어쿠스틱 기타',acoustic:'어쿠스틱',piano:'피아노',synth:'신스',synthesizer:'신스',synthpop:'신스',electronic:'일렉트로닉',drums:'드럼',bass:'베이스',strings:'스트링',violin:'바이올린',orchestral:'오케스트라',orchestra:'오케스트라','lo-fi':'로파이',lofi:'로파이',ambient:'앰비언트',band:'밴드',brass:'브라스',saxophone:'색소폰',vocal:'보컬','female vocalists':'여성 보컬','male vocalists':'남성 보컬','female vocalist':'여성 보컬','male vocalist':'남성 보컬',beats:'비트',instrumental:'인스트루멘탈',trumpet:'트럼펫',cello:'첼로',flute:'플루트',keyboard:'키보드',percussion:'퍼커션'};
 async function lfm(method,params){
-  const ep='https://ws.audioscrobbler.com/2.0/?'+new URLSearchParams({method,api_key:LASTFM_KEY,format:'json',autocorrect:'1',...params}).toString();
+  const ep='https://ws.audioscrobbler.com/2.0/?'+new URLSearchParams({method,api_key:MUSIC_KEY,format:'json',autocorrect:'1',...params}).toString();
   try{
     const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);
     const r=await fetch(ep,{signal:c.signal});clearTimeout(t);
@@ -556,7 +566,7 @@ function renderRecList(container,list){
 async function showSimilar(id){
   const s=songs.find(x=>x.id===id);if(!s)return;
   $('#sim-title').textContent='비슷한 곡 · '+s.title;
-  $('#sim-results').innerHTML='<div class="api-status">Last.fm에서 비슷한 곡을 찾고 있어요…</div>';
+  $('#sim-results').innerHTML='<div class="api-status">비슷한 곡을 찾고 있어요…</div>';
   openModal('sim-modal');
   let list=await getSimilar(s.artist,s.title);
   const lib=new Set(songs.map(skey)),seen=new Set();
